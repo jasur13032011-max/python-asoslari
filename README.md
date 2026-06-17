@@ -1,145 +1,152 @@
 # python-asoslari
-Mana, barcha talablarga toʻliq javob beradigan, modulli va xatoliklar boshqarilgan Python dasturi. Bu dasturda har bir amal alohida funksiyaga ajratilgan va sozlik.json fayli bilan ishlaydi.
+Mana, berilgan barcha shartlar va OOP (Obyektga Yoʻnaltirilgan Dasturlash) qoidalari asosida yozilgan BankAccount va PremiumAccount klasslari kodi.
+
+Bu yerda har bir amal tarixga yozib boriladi, salbiy qoldiqqa yo'l qo'yilmaydi (ValueError orqali) va vorislik (inheritance) xususiyatidan to'g'ri foydalanilgan.
 
 Python Dastur Kodi
 Python
-import json
-import os
+from datetime import datetime
 
-FAYL_NOMI = "sozlik.json"
-
-# Boshlang'ich 20 ta so'z (agar fayl mavjud bo'lmasa ishlatiladi)
-BOSHLANGICH_SOZLAR = {
-    "apple": "olma", "banana": "banan", "cherry": "gilos", "date": "xurmo",
-    "elderberry": "marjon meva", "fig": "anjir", "grape": "uzum", "honeydew": "qovun",
-    "ice cream": "muzqaymoq", "juice": "sharbat", "kiwi": "kivi", "lemon": "limon",
-    "mango": "mango", "nectarine": "nektarin", "orange": "apelsin", "papaya": "papaya",
-    "quince": "behi", "raspberry": "morush", "strawberry": "qulupnay", "tangerine": "mandarin"
-}
-
-def yuklash():
-    """Fayldan lug'at ma'lumotlarini yuklash funksiyasi"""
-    try:
-        if os.path.exists(FAYL_NOMI):
-            with open(FAYL_NOMI, "r", encoding="utf-8") as fayl:
-                return json.load(fayl)
-        else:
-            # Fayl bo'lmasa, boshlang'ich 20 ta so'z bilan yangi lug'at yaratiladi
-            saqlash(BOSHLANGICH_SOZLAR)
-            return BOSHLANGICH_SOZLAR
-    except (json.JSONDecodeError, IOError) as e:
-        print(f"⚠️ Faylni yuklashda xatolik yuz berdi: {e}")
-        return {}
-
-def saqlash(lugat):
-    """Lug'at ma'lumotlarini faylga saqlash funksiyasi"""
-    try:
-        with open(FAYL_NOMI, "w", encoding="utf-8") as fayl:
-            json.dump(lugat, fayl, ensure_ascii=False, indent=4)
-    except IOError as e:
-        print(f"⚠️ Ma'lumotlarni saqlashda xatolik yuz berdi: {e}")
-
-def qoshish(lugat):
-    """Yangi so'z qo'shish funksiyasi"""
-    inglizcha = input("Inglizcha so'zni kiriting: ").strip().lower()
-    if not inglizcha:
-        print("❌ So'z bo'sh bo'lishi mumkin emas!")
-        return
-    
-    if inglizcha in lugat:
-        print(f"⚠️ '{inglizcha}' so'zi lug'atda allaqachon bor ({lugat[inglizcha]}).")
-        yangilash = input("Uni yangilashni xohlaysizmi? (ha/yo'q): ").strip().lower()
-        if yangilash != 'ha':
-            return
-
-    ozbekcha = input("O'zbekcha tarjimasini kiriting: ").strip().lower()
-    if ozbekcha:
-        lugat[inglizcha] = ozbekcha
-        saqlash(lugat)
-        print("✅ So'z muvaffaqiyatli saqlandi!")
-    else:
-        print("❌ Tarjima bo'sh bo'lishi mumkin emas!")
-
-def qidirish(lugat):
-    """Kalit (inglizcha) yoki qiymat (o'zbekcha) bo'yicha qidirish funksiyasi"""
-    soz = input("Qidirilayotgan so'zni kiriting (inglizcha yoki o'zbekcha): ").strip().lower()
-    topildi = False
-
-    # Kalit bo'yicha qidirish (Inglizcha)
-    if soz in lugat:
-        print(f"🔍 Topildi (Inglizcha): {soz} -> {lugat[soz]}")
-        topildi = True
-
-    # Qiymat bo'yicha qidirish (O'zbekcha)
-    for kalit, qiymat in lugat.items():
-        if qiymat == soz:
-            print(f"🔍 Topildi (O'zbekcha): {qiymat} -> {kalit}")
-            topildi = True
-
-    if not topildi:
-        print("❌ Afsuski, bunday so'z lug'atdan topilmadi.")
-
-def ochirish(lugat):
-    """Lug'atdan so'z o'chirish funksiyasi"""
-    inglizcha = input("O'chiriladigan inglizcha so'zni kiriting: ").strip().lower()
-    if inglizcha in lugat:
-        del lugat[inglizcha]
-        saqlash(lugat)
-        print(f"🗑️ '{inglizcha}' so'zi lug'atdan o'chirildi.")
-    else:
-        print("❌ Bunday so'z lug'atda mavjud emas.")
-
-def statistika(lugat):
-    """Bonus: Lug'at statistikasini ko'rsatish funksiyasi"""
-    jami_sozlar = len(lugat)
-    print("\n--- 📊 LUG'AT STATISTIKASI ---")
-    print(f"Jami saqlangan so'zlar soni: {jami_sozlar} ta")
-    if jami_sozlar > 0:
-        # Eng uzun inglizcha so'zni topish uchun namuna statistika
-        eng_uzun = max(lugat.keys(), key=len)
-        print(f"Eng uzun inglizcha so'z: '{eng_uzun}' ({len(eng_uzun)} ta harf)")
-    print("------------------------------")
-
-def menu():
-    """Ilova boshqaruv menyusi (Menu Pattern)"""
-    lugat = yuklash()
-    
-    while True:
-        print("\n=== LUG'AT ILOVASI EN-UZ ===")
-        print("1. So'z qidirish")
-        print("2. Yangi so'z qo'shish")
-        print("3. So'zni o'chirish")
-        print("4. Statistika ko'rish")
-        print("5. Chiqish")
+class BankAccount:
+    def __init__(self, ism: str, qoldiq: float = 0.0):
+        self.ism = ism
+        self.qoldiq = qoldiq
+        self.tarix = []  # Har bir amalni dict ko'rinishida saqlaymiz
         
-        tanlov = input("Amalni tanlang (1-5): ").strip()
+        # Hisob ochilganini tarixga yozib qo'yamiz
+        self._tarixga_yoz(amal="Hisob ochildi", miqdor=qoldiq)
+
+    def _tarixga_yoz(self, amal: str, miqdor: float, qoshimcha: str = ""):
+        """Ichki metod: Har bir amalni vaqt bilan birga tarixga yozadi"""
+        vaqt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.tarix.append({
+            "vaqt": vaqt,
+            "amal": amal,
+            "miqdor": miqdor,
+            "qoldiq": self.qoldiq,
+            "izoh": qoshimcha
+        })
+
+    def pul_qoyish(self, miqdor: float):
+        """Hisobga pul kirim qilish"""
+        if miqdor <= 0:
+            raise ValueError("Kiritilayotgan pul miqdori noldan katta bo'lishi kerak!")
         
-        if tanlov == "1":
-            qidirish(lugat)
-        elif tanlov == "2":
-            qoshish(lugat)
-        elif tanlov == "3":
-            ochirish(lugat)
-        elif tanlov == "4":
-            statistika(lugat)
-        elif tanlov == "5":
-            print("👋 Dastur tugatildi. Xayr!")
-            break
-        else:
-            print("❌ Noto'g'ri buyruq! Iltimos, 1 dan 5 gacha bo'lgan raqamlardan birini kiriting.")
+        self.qoldiq += miqdor
+        self._tarixga_yoz(amal="Kirim", miqdor=miqdor)
+        print(f"✅ {self.ism}: Hisobga {miqdor} so'm qo'shildi.")
 
-# Dasturni ishga tushirish
-if __name__ == "__main__":
-    menu()
-Kodning oʻziga xos imkoniyatlari va talablar ijrosi:
-Modullik: yuklash, saqlash, qoshish, qidirish, ochirish va statistika amallari toʻliq alohida funksiyalarga ajratilgan.
+    def pul_chiqarish(self, miqdor: float) -> bool:
+        """Hisobdan pul yechish (Salbiy qoldiq tekshiruvi bilan)"""
+        if miqdor <= 0:
+            raise ValueError("Yechilayotgan pul miqdori noldan katta bo'lishi kerak!")
+        
+        if self.qoldiq < miqdor:
+            raise ValueError(f"❌ {self.ism}: Hisobda mablag' yetarli emas! Qoldiq: {self.qoldiq} so'm.")
+        
+        self.qoldiq -= miqdor
+        self._tarixga_yoz(amal="Chiqim", miqdor=miqdor)
+        print(f"💸 {self.ism}: Hisobdan {miqdor} so'm yechildi.")
+        return True
 
-JSON bilan ishlash: Ma'lumotlar sozlik.json faylida chiroyli formatda (indent=4) saqlanadi va yuklanadi.
+    def qoldiq_korish(self):
+        """Joriy qoldiq va qisqacha tarixni chiqarish"""
+        print(f"\n=== {self.ism} kontenti qoldig'i: {self.qoldiq} so'm ===")
+        print("Oxirgi amallar tarixi:")
+        for odim in self.tarix[-3:]:  # Oxirgi 3 ta amalni ko'rsatadi
+            print(f" [{odim['vaqt']}] {odim['amal']}: {odim['miqdor']} so'm (Qoldiq: {odim['qoldiq']}) {odim['izoh']}")
 
-Avtomatik yuklash va Boshlangʻich baza: Dastur ilk bor ishga tushganda fayl bo'lmasa, kod ichidagi 20 ta meva nomlaridan iborat tayyor lug'atni avtomatik ravishda faylga yozib oladi.
+    def transfer(self, qabul_qiluvchi: 'BankAccount', miqdor: float):
+        """Boshqa hisob raqamiga pul o'tkazish"""
+        if miqdor <= 0:
+            raise ValueError("O'tkatma miqdori noldan katta bo'lishi kerak!")
+        
+        # Pulni yechishga urinib ko'ramiz (agar mablag' yetmasa, avtomatik ValueError otiladi)
+        self.pul_chiqarish(miqdor)
+        
+        # Qabul qiluvchining hisobiga qo'shamiz
+        qabul_qiluvchi.qoldiq += miqdor
+        qabul_qiluvchi._tarixga_yoz(amal="O'tkatma (Kirim)", miqdor=miqdor, qoshimcha=f"Yuboruvchi: {self.ism}")
+        
+        # Yuboruvchining tarixini yangilaymiz (oxirgi Chiqim amalini o'tkatmaga o'zgartirib qo'yamiz)
+        self.tarix[-1]['amal'] = "O'tkatma (Chiqim)"
+        self.tarix[-1]['izoh'] = f"Qabul qiluvchi: {qabul_qiluvchi.ism}"
+        
+        print(f"🔄 {self.ism} -> {qabul_qiluvchi.ism} hisobiga {miqdor} so'm muvaffaqiyatli o'tkazildi.")
 
-Ikki tomonlama qidiruv: Qidiruv tizimi ham inglizcha kalit so'zni, ham o'zbekcha tarjimani birdek qidira oladi.
+    def __str__(self) -> str:
+        """Obyekt haqida chiroyli ma'lumot"""
+        return f"🏦 BankAccount | Ega: {self.ism} | Qoldiq: {self.qoldiq} so'm"
 
-Xatoliklar nazorati (try/except): Fayl o'qish yoki yozishda yuzaga kelishi mumkin bo'lgan har qanday kutilmagan tizim xatolari dasturni to'xtatib qo'ymaydi, balki ogohlantirish beradi.
 
-Statistika (Bonus): Lug'atdagi jami so'zlar soni va eng uzun so'z kabi foydali ma'lumotlarni chiqaradi.
+class PremiumAccount(BankAccount):
+    def __init__(self, ism: str, qoldiq: float = 0.0, kredit_limiti: float = 0.0):
+        # Ota klassning __init__ metodini chaqiramiz
+        super().__init__(ism, qoldiq)
+        self.kredit_limiti = kredit_limiti
+
+    def pul_chiqarish(self, miqdor: float) -> bool:
+        """Kredit limitini hisobga olgan holda pul yechish (Metod override)"""
+        if miqdor <= 0:
+            raise ValueError("Yechilayotgan pul miqdori noldan katta bo'lishi kerak!")
+        
+        # Premium foydalanuvchi jami qoldiq + kredit limiti miqdorigacha pul yecha oladi
+        jami_ruxsat = self.qoldiq + self.kredit_limiti
+        
+        if jami_ruxsat < miqdor:
+            raise ValueError(f"❌ {self.ism} (Premium): Kredit limiti bilan ham mablag' yetarli emas! Maksimal yechish: {jami_ruxsat} so'm.")
+        
+        self.qoldiq -= miqdor
+        self._tarixga_yoz(amal="Chiqim (Premium)", miqdor=miqdor)
+        print(f"💎 {self.ism} (Premium): Hisobdan {miqdor} so'm yechildi (Kredit limiti ishlatilgan bo'lishi mumkin).")
+        return True
+
+    def __str__(self) -> str:
+        return f"💎 PremiumAccount | Ega: {self.ism} | Qoldiq: {self.qoldiq} so'm | Kredit Limiti: {self.kredit_limiti} so'm"
+Ishlatish va Transfer Amallari (Kamida 3 ta obyekt)
+Kodni tekshirish uchun 3 ta mijoz yaratamiz: ikkita oddiy va bitta Premium hisob egasi. Ular o'rtasida pul o'tkazmalarini amalga oshiramiz.
+
+Python
+# 1. Obyektlarni yaratish
+mijoz1 = BankAccount("Anvar", 500_000)
+mijoz2 = BankAccount("Zilola", 100_000)
+mijoz3 = PremiumAccount("Sardor", 200_000, kredit_limiti=300_000) # Jami 500_000 gacha ishlata oladi
+
+print("\n--- 🟢 BOSH LANG'ICH HOLAT ---")
+print(mijoz1)
+print(mijoz2)
+print(mijoz3)
+
+print("\n--- 🔄 TRANSAKSIYALAR ---")
+try:
+    # 1-O'tkatma: Anvar Zilolaga 200,000 so'm yuboradi
+    mijoz1.transfer(mijoz2, 200_000)
+    
+    # 2-O'tkatma: Zilola Sardorga 150,000 so'm yuboradi
+    mijoz2.transfer(mijoz3, 150_000)
+    
+    # 3-O'tkatma (Premium imkoniyati): 
+    # Sardor hisobida 350,000 bor edi, lekin u Anvarga 600,000 o'tkazmoqchi.
+    # Uning 300,000 kredit limiti bor, demak o'tkazma muvaffaqiyatli bo'lishi kerak.
+    mijoz3.transfer(mijoz1, 600_000)
+
+except ValueError as e:
+    print(e)
+
+print("\n--- 📊 YAKUNIY STATISTIKA VA AMALLAR TARIXI ---")
+mijoz1.qoldiq_korish()
+mijoz2.qoldiq_korish()
+mijoz3.qoldiq_korish()
+
+print("\n--- 🚫 XATOLIKNI TEKSHIRISH (Salbiy qoldiqqa urinish) ---")
+try:
+    # Zilola endi hisobidan ko'p pul yechishga urunib ko'radi
+    mijoz2.pul_chiqarish(500_000)
+except ValueError as e:
+    print(e)
+Kod qanday ishlaydi?
+Encapsulation & History: _tarixga_yoz yordamchi metodi har safar pul o'tkazilganda, yechilganda yoki kiritilganda joriy vaqtni olib self.tarix ro'yxatiga dict shaklida qo'shadi.
+
+Polymorphism & Override: PremiumAccount klassi pul_chiqarish metodini o'zgartirgan (override qilgan). Shuning uchun Sardor o'z hisobidagi puldan ko'proq (manfiy balansga kirib) pul o'tkaza oldi, chunki dastur uning kredit_limitini hisobga oldi.
+
+Xavfsizlik: Agar mijoz2 (Zilola) o'zida boridan ortiqcha pul ishlatmoqchi bo'lsa, dastur ValueError beradi va o'tkatmani to'xtatadi.
