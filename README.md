@@ -1,157 +1,146 @@
 # python-asoslari
-Geometrik figuralarning yuzasi va perimetrini hisoblab beradigan, toza kod yozish qoidalariga (docstring, default argumentlar, return) mos ravishda tayyorlangan Python dasturi:
+Mana, ma'lumotlar strukturasi (ichma-ich lug'atlar, to'plamlar) va mukammal qidiruv/filtr tizimiga ega bo'lgan Kontaktlar kitobi (Telefon ma'lumotnomasi) dasturi:
 
 Python
-import math
+# Boshlang'ich kontaktlar ma'lumotlar bazasi
+# Struktura: {ism: {tel: str, manzil: str, email: str}}
+kontaktlar = {
+    "Ali Valiyev": {"tel": "+998901234567", "manzil": "Toshkent", "email": "ali@mail.com"},
+    "Zuhra Karimova": {"tel": "+998939876543", "manzil": "Samarqand", "email": "zuhra@gmail.com"},
+    "Olim Nabiyev": {"tel": "+998914445566", "manzil": "Toshkent", "email": "olim@it.uz"},
+    "Asal Shokirova": {"tel": "+998997778899", "manzil": "Farg'ona", "email": "asal@design.com"}
+}
 
-# ==========================================
-# 1. DOIRA (CIRCLE) FUNKSIYALARI
-# ==========================================
+def tel_va_ism_validatsiya(ism: str, tel: str) -> bool:
+    """Ism bo'sh emasligi va telefon raqami to'g'ri formatdaligini tekshiradi."""
+    if not ism.strip():
+        print("❌ Xatolik: Ism bo'sh bo'lishi mumkin emas!")
+        return False
+    # Telefon raqami kamida 9 ta raqam bo'lishi va + belgisi bilan boshlanishi mumkin
+    tozalangan_tel = tel.replace("+", "").strip()
+    if not tozalangan_tel.isdigit() or len(tozalangan_tel) < 9:
+        print("❌ Xatolik: Telefon raqami formati noto'g'ri! (Faqat raqamlar yoki + belgisi)")
+        return False
+    return True
 
-def doira_maydoni(radius: float, pi: float = 3.14159) -> float:
-    """Doira radiusiga ko'ra uning yuzasini hisoblaydi.
+while True:
+    print("\n" + "=" * 15 + " KONTAKTLAR DASTURI " + "=" * 15)
+    print("1. Yangi kontakt qo'shish")
+    print("2. Kontakt qidirish (Ism yoki Tel bo'yicha)")
+    print("3. Kontaktni o'chirish")
+    print("4. Barcha kontaktlarni ko'rish (Alifbo tartibida)")
+    print("5. Shaharlar bo'yicha filtrlash (Dict Comprehension)")
+    print("6. Tizim statistikasi (Set va Tahlil)")
+    print("7. Chiqish")
+    print("=" * 50)
     
-    Formula: S = pi * r^2
-    """
-    if radius < 0:
-        raise ValueError("Radius manfiy bo'lishi mumkin emas!")
-    return pi * (radius ** 2)
-
-def doira_perimetri(radius: float, pi: float = 3.14159) -> float:
-    """Doira radiusiga ko'ra uning uzunligini (perimetrini) hisoblaydi.
+    tanlov = input("Amalni tanlang (1-7): ").strip()
     
-    Formula: P = 2 * pi * r
-    """
-    if radius < 0:
-        raise ValueError("Radius manfiy bo'lishi mumkin emas!")
-    return 2 * pi * radius
-
-
-# ==========================================
-# 2. TO'G'RI TO'RTLIK (RECTANGLE) FUNKSIYALARI
-# ==========================================
-
-def tortlik_maydoni(boyi: float, eni: float = 1.0) -> float:
-    """To'g'ri to'rtburchakning bo'yi va eniga ko'ra yuzasini hisoblaydi.
-    
-    Formula: S = a * b
-    """
-    if boyi < 0 or eni < 0:
-        raise ValueError("O'lchamlar manfiy bo'lishi mumkin emas!")
-    return boyi * eni
-
-def tortlik_perimetri(boyi: float, eni: float = 1.0) -> float:
-    """To'g'ri to'rtburchakning bo'yi va eniga ko'ra perimetrini hisoblaydi.
-    
-    Formula: P = 2 * (a + b)
-    """
-    if boyi < 0 or eni < 0:
-        raise ValueError("O'lchamlar manfiy bo'lishi mumkin emas!")
-    return 2 * (boyi + eni)
-
-
-# ==========================================
-# 3. UCHBURCHAK (TRIANGLE) FUNKSIYALARI
-# ==========================================
-
-def uchburchak_maydoni(asos: float, balandlik: float) -> float:
-    """Uchburchakning asosi va balandligiga ko'ra yuzasini hisoblaydi.
-    
-    Formula: S = 0.5 * a * h
-    """
-    if asos < 0 or balandlik < 0:
-        raise ValueError("Asos yoki balandlik manfiy bo'lishi mumkin emas!")
-    return 0.5 * asos * balandlik
-
-def uchburchak_perimetri(a: float, b: float, c: float) -> float:
-    """Uchburchakning uchta tomoniga ko'ra perimetrini hisoblaydi.
-    
-    Formula: P = a + b + c
-    """
-    if a < 0 or b < 0 or c < 0:
-        raise ValueError("Tomonlar manfiy bo'lishi mumkin emas!")
-    # Uchburchak qoidasini tekshirish (ixtiyoriy, lekin foydali validatsiya)
-    if not (a + b > c and a + c > b and b + c > a):
-        raise ValueError("Bunday tomonlar bilan uchburchak yasab bo'lmaydi!")
-    return a + b + c
-
-
-# ==========================================
-# ASOSIY MENU FUNKSIYASI
-# ==========================================
-
-def main_menu():
-    while True:
-        print("\n" + "=" * 15 + " GEOMETRIK KALKULYATOR " + "=" * 15)
-        print("1. Doira (Yuzasi va Uzunligi)")
-        print("2. To'g'ri to'rtburchak (Yuzasi va Perimetri)")
-        print("3. Uchburchak (Yuzasi va Perimetri)")
-        print("4. Chiqish")
-        print("=" * 53)
+    # 1. Yangi kontakt qo'shish
+    if tanlov == "1":
+        ism = input("Kontakt ismini kiriting: ").strip()
+        tel = input("Telefon raqamini kiriting (Masalan: +998901234567): ").strip()
+        manzil = input("Yashash shahrini kiriting: ").strip().capitalize()
+        email = input("Email manzilini kiriting: ").strip()
         
-        tanlov = input("Figurani tanlang (1-4): ").strip()
+        if tel_va_ism_validatsiya(ism, tel):
+            if ism in kontaktlar:
+                print(f"⚠️ {ism} ismli kontakt allaqachon mavjud! Ma'lumotlar yangilandi.")
+            
+            # Ichma-ich dict yaratish qismi
+            kontaktlar[ism] = {
+                "tel": tel,
+                "manzil": manzil if manzil else "Noma'lum",
+                "email": email if email else "Noma'lum"
+            }
+            print(f"✅ {ism} muvaffaqiyatli saqlandi.")
+            
+    # 2. Qidirish (Ism yoki Tel bo'yicha)
+    elif tanlov == "2":
+        kalit = input("Qidirilayotgan ism yoki telefon raqamini kiriting: ").strip().lower()
+        topildi = False
         
-        try:
-            if tanlov == "1":
-                r = float(input("Doira radiusini kiriting: "))
-                S = doira_maydoni(r)
-                P = doira_perimetri(r)
-                print(f"\n🟢 Doira Natijalari:")
-                print(f"  - Yuzasi:    {S:.4f}")
-                print(f"  - Perimetri: {P:.4f}")
+        for ism, info in kontaktlar.items():
+            # Ism yoki telefon mos kelsa (qisman qidiruv ham ishlaydi)
+            if kalit in ism.lower() or kalit in info["tel"]:
+                print(f"\n👤 {ism}:")
+                print(f"  📞 Tel:    {info['tel']}")
+                print(f"  📍 Manzil: {info['manzil']}")
+                print(f"  📧 Email:  {info['email']}")
+                topildi = True
                 
-            elif tanlov == "2":
-                a = float(input("To'rtburchak bo'yini kiriting: "))
-                b_input = input("To'rtburchak enini kiriting (standart 1.0 uchun Enter bosing): ").strip()
+        if not topildi:
+            print("🔍 Afsuski, hech qanday kontakt topilmadi.")
+            
+    # 3. O'chirish
+    elif tanlov == "3":
+        ism = input("O'chirmoqchi bo'lgan kontakt ismini kiriting: ").strip()
+        if ism in kontaktlar:
+            # Lug'atdan kalit so'z bo'yicha butunlay o'chirish
+            del kontaktlar[ism]
+            print(f"🗑️ '{ism}' kontaktlar ro'yxatidan o'chirildi.")
+        else:
+            print("❌ Bunday ismli kontakt topilmadi.")
+            
+    # 4. Hammasini ko'rsatish (Alifbo tartibida)
+    elif tanlov == "4":
+        if not kontaktlar:
+            print("📭 Kontaktlar kitobi bo'sh.")
+            continue
+            
+        print("\n🗂️ BARCHA KONTAKTLAR (ALIFBO TARTIBIDA):")
+        # Kalitlar bo'yicha saralangan ro'yxat olish
+        for ism in sorted(kontaktlar.keys()):
+            info = kontaktlar[ism]
+            print(f" ▫️ {ism} -> 📞 {info['tel']} | 📍 {info['manzil']}")
+            
+    # 5. Dict Comprehension bilan filtrlash
+    elif tanlov == "5":
+        shahar = input("Qaysi shahardagi kontaktlarni filtrlamoqchisiz?: ").strip().capitalize()
+        
+        # Dict comprehension yordamida yangi lug'at hosil qilish
+        filtr_kontaktlar = {k: v for k, v in kontaktlar.items() if v["manzil"] == shahar}
+        
+        print(f"\n📍 {shahar} shahridagi kontaktlar:")
+        if not filtr_kontaktlar:
+            print("   Bu shahardan hech kim topilmadi.")
+        else:
+            for ism, info in filtr_kontaktlar.items():
+                print(f"  👤 {ism} | 📞 {info['tel']}")
                 
-                # Default qiymatdan foydalanish mantiqi
-                if b_input == "":
-                    S = tortlik_maydoni(a)
-                    P = tortlik_perimetri(a)
-                else:
-                    b = float(b_input)
-                    S = tortlik_maydoni(a, b)
-                    P = tortlik_perimetri(a, b)
-                    
-                print(f"\n🟦 To'g'ri to'rtburchak Natijalari:")
-                print(f"  - Yuzasi:    {S:.2f}")
-                print(f"  - Perimetri: {P:.2f}")
-                
-            elif tanlov == "3":
-                print("--- Yuza hisoblash uchun ---")
-                asos = float(input("Uchburchak asosini kiriting: "))
-                balandlik = float(input("Uchburchak balandligini kiriting: "))
-                S = uchburchak_maydoni(asos, balandlik)
-                
-                print("--- Perimetr hisoblash uchun ---")
-                tomon1 = float(input("1-tomonni kiriting: "))
-                tomon2 = float(input("2-tomonni kiriting: "))
-                tomon3 = float(input("3-tomonni kiriting: "))
-                P = uchburchak_perimetri(tomon1, tomon2, tomon3)
-                
-                print(f"\n🔺 Uchburchak Natijalari:")
-                print(f"  - Yuzasi:    {S:.2f}")
-                print(f"  - Perimetri: {P:.2f}")
-                
-            elif tanlov == "4":
-                print("👋 Matematika darsimiz tugadi. Salomat bo'ling!")
-                break
-            else:
-                print("❌ Noto'g'ri buyruq! 1 dan 4 gacha son kiriting.")
-                
-        except ValueError as xato:
-            # Manfiy son yoki noto'g'ri ma'lumot kiritilganda dastur o'chib ketmaydi
-            print(f"\n⚠️ [XATOLIK]: {xato}")
-            print("Iltimos, qiymatlarni qaytadan to'g'ri kiriting.")
+    # 6. Statistika va Set (Unique shaharlar)
+    elif tanlov == "6":
+        if not kontaktlar:
+            print("⚠️ Statistika uchun ma'lumot yetarli emas.")
+            continue
+            
+        jami_kontakt = len(kontaktlar)
+        
+        # Set comprehension yordamida faqat unikal shaharlarni ajratib olish
+        unikal_shaharlar = {info["manzil"] for info in kontaktlar.values()}
+        
+        # Eng uzun ismni topish
+        eng_uzun_ism = max(kontaktlar.keys(), key=len)
+        
+        print("\n" + "-"*15 + " TIZIM STATISTIKASI " + "-"*15)
+        print(f"📊 Jami kontaktlar soni:  {jami_kontakt} ta")
+        print(f"🔤 Eng uzun kontakt ismi: {eng_uzun_ism} ({len(eng_uzun_ism)} ta belgi)")
+        print(f"🗺️ Unikal shaharlar ({len(unikal_shaharlar)} ta): {', '.join(unikal_shaharlar)}")
+        print("-" * 50)
+        
+    # 7. Chiqish
+    elif tanlov == "7":
+        print("👋 Dastur tugatildi. Kontaktlar xavfsiz saqlandi!")
+        break
+    else:
+        print("❌ Noto'g'ri buyruq! 1 dan 7 gacha bo'lgan raqam kiriting.")
+💡 Kodning kuchli tomonlari:
+Murakkab ma'lumotlar arxitekturasi: Har bir insonning ismi asosiy kalit (key), uning ichidagi ma'lumotlar esa ikkinchi kichik lug'at (sub-dictionary) hisoblanadi.
 
-# Dasturni faqat to'g'ridan-to'g'ri ishga tushganda bajarish
-if __name__ == "__main__":
-    main_menu()
-💡 Kodning arxitektura jihatdan afzalliklari:
-Toza funksiyalar (Single Responsibility): Har bir funksiya faqat bitta matematik amalni bajaradi va natijani return orqali qaytaradi. Bu ulardan loyihaning boshqa joylarida ham qayta foydalanish imkonini beradi.
+Dict va Set Comprehension:
 
-Docstring ("""..."""): Har bir funksiya tepasida uning nima ish qilishi va qaysi formula asosida ishlashi aniq yozilgan.
+{k: v for k, v in kontaktlar.items() if ...} kodi bitta qatorda butun boshli lug'atni filtrlaydi.
 
-Default Argumentlar: pi=3.14159 va eni=1.0 parametrlari agar ikkinchi argument berilmasa, avtomatik ravishda tayyor qiymatdan foydalanadi.
+{info["manzil"] for info in kontaktlar.values()} to'plam (set) yaratadi, to'plamlar esa o'z ichida bir xil elementlarni takrorlamaydi va unikal ro'yxat hosil qilib beradi.
 
-raise ValueError: Kod ichida manfiy o'lchovlar kiritilishi qat'iy nazorat qilingan. Xato aniqlansa, maxsus xabar bilan tizimga signal uzatiladi va bu xato main_menu ichidagi try/except bloki orqali xavfsiz ushlab qolinadi.
+Professional Validatsiya: Ism bo'sh qolishi yoki telefon o'rniga harf kiritilishining oldi mustahkam olingan.
