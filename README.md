@@ -1,67 +1,90 @@
 # python-asoslari
-Mana, kiritilgan yosh, hafta kuni va talabalik maqomiga qarab chipta narxini avtomatik va adolatli hisoblab beradigan mukammal Python dasturi.
-
-Bunda barcha chegirmalar va hafta oxiridagi qo'shimcha narxlar zanjirsimon tartibda hisoblanadi:
+Mana, random moduli, while sikli va qiyinlik darajalariga ega bo'lgan, qiziqarli va mukammal "Sonni top" o'yini:
 
 Python
-# Boshlang'ich chipta narxi (Asosiy narx)
-CHIPTA_NARXI = 100000  # 100,000 so'm
+import random
 
 print("=" * 50)
-print("       CHIPTA NARXINI HISOBLASH TIZIMI        ")
+print("          'SONNI TOP' INTЕRAKTIV O'YINI          ")
+print("=" * 50)
+print("O'yin qoidalari:")
+print("- Tanlangan orliqdagi yashirin sonni topishingiz kerak.")
+print("- Sizda jami 10 ta urinish bor.")
+print("- O'yinni to'xtatish uchun 'q' tugmasini bosing.")
 print("=" * 50)
 
-# Foydalanuvchidan ma'lumotlarni so'rash
-yosh = int(input("Yoshingizni kiriting: "))
-hafta_kuni = input("Hafta kunini kiriting (dushanba-yakshanba): ").strip().lower()
-talaba_mi = input("Talabamisiz? (ha/yo'q): ").strip().lower()
+# 1. Qiyinlik darajasini tanlash
+print("Qiyinlik darajasini tanlang:")
+print("1 -> Oson (1 - 50 oralig'ida)")
+print("2 -> O'rta (1 - 100 oralig'ida)")
+print("3 -> Qiyin (1 - 200 oralig'ida)")
+print("-" * 50)
 
-# Asosiy narxni yoshga qarab belgilash (4 ta blokli if/elif/else)
-if yosh >= 0 and yosh <= 6:
-    kodlangan_narx = 0
-    chegirma_turi = "0-6 yosh (Bepul)"
-    
-elif yosh >= 7 and yosh <= 17:
-    kodlangan_narx = CHIPTA_NARXI * 0.5  # 50% yarim narx
-    chegirma_turi = "7-17 yosh (50% chegirma)"
-    
-elif yosh >= 60:
-    kodlangan_narx = CHIPTA_NARXI * 0.7  # 30% chegirma (ya'ni 70% narxi qoladi)
-    chegirma_turi = "60+ yosh (30% chegirma)"
-    
+daraja = input("Daraja raqamini kiriting (1/2/3): ").strip()
+
+# Tanlangan darajaga qarab chegarani belgilash
+if daraja == "1":
+    chegara = 50
+elif daraja == "3":
+    chegara = 200
 else:
-    kodlangan_narx = CHIPTA_NARXI  # To'liq narx
-    chegirma_turi = "To'liq narx (Chegirmasiz)"
+    # Agar foydalanuvchi noto'g'ri kiritsa, standart holatda 2-daraja (100) tanlanadi
+    chegara = 100
+    print("[Eslatma]: Standart o'rta daraja (1-100) tanlandi.")
 
-# Hafta oxirini tekshirish (and / or operatorlari ishlatilgan)
-# Dam olish kunlari chipta narxi 20% ga qimmatlashadi
-if hafta_kuni == "shanba" or hafta_kuni == "yakshanba":
-    kodlangan_narx = kodlangan_narx * 1.2
-    kun_turi = "Dam olish kuni (+20% qimmatlashish)"
-else:
-    kun_turi = "Ish kuni (Oddiy tarif)"
+# 2. random.randint yordamida tasodifiy sonni tanlash
+yashirin_son = random.randint(1, chegares)
+print(f"\nMen 1 dan {chegara} gacha bo'lgan sonni o'yladim. Uni topishga urinib ko'ring!")
+print("=" * 50)
 
-# Talabalik chegirmasini qo'llash
-# Agar foydalanuvchi talaba bo'lsa va chipta bepul bo'lmasa, yana 15% chegirma beriladi
-if talaba_mi == "ha" and kodlangan_narx > 0:
-    kodlangan_narx = kodlangan_narx * 0.85  # 15% chegirma
-    talaba_status = "Talaba (Qo'shimcha 15% chegirma)"
-else:
-    talaba_status = "Talaba emas / Tatbiq etilmaydi"
+# O'yin o'zgaruvchilari
+urinishlar_soni = 0
+MAKS_URINISH = 10
+yutdi = False
 
-# Yakuniy natijani chiroyli formatda chiqarish
-print("\n" + "-"*15 + " CHIPTA CHЕKI " + "-"*15)
-print(f"📊 Yosh tarifi:       {chegirma_turi}")
-print(f"📅 Hafta turi:       {kun_turi}")
-print(f"🎓 Talaba maqomi:     {talaba_status}")
-print("-" * 44)
-print(f"💵 Yakuniy narx:      {kodlangan_narx:,.2f} so'm")
-print("=" * 44)
-💡 Tizim qanday ishlaydi?
-Yosh filtratsiyasi: yosh >= 0 and yosh <= 6 kabi shartlar orqali foydalanuvchining yosh toifasi aniqlanadi va dastlabki narx shakllantiriladi.
+# 3. while sikli orqali urinishlarni boshqarish
+while urinishlar_soni < MAKS_URINISH:
+    urinishlar_soni += 1
+    tahmin_input = input(f"[{urinishlar_soni}-urinish] Tahminingizni kiriting: ").strip().lower()
+    
+    # Foydalanuvchi 'q' yozsa o'yinni to'xtatish (break)
+    if tahmin_input == 'q':
+        print(f"\nO'yin to'xtatildi. Yashirin son {yashirin_son} edi. Keyingi safar ko'rishguncha!")
+        break
+        
+    # Kiritilgan qiymat son ekanligini tekshirish
+    if not tahmin_input.isdigit():
+        print("[Ogohlantirish]: Iltimos, faqat butun son yoki chiqish uchun 'q' kiriting.")
+        urinishlar_soni -= 1 # Noto'g'ri kiritish urinishlar sonini kamaytirmaydi
+        continue
+        
+    tahmin = int(tahmin_input)
+    
+    # 4. Katta / Kichik / To'g'ri xabarlarini chiqarish
+    if tahmin < yashirin_son:
+        print("❌ Yo'q, men o'ylagan son bundan KATTA!")
+    elif tahmin > yashirin_son:
+        print("❌ Yo'q, men o'ylagan son bundan KICHIK!")
+    else:
+        yutdi = True
+        break  # To'g'ri topilsa sikldan chiqiladi
 
-Kun tekshiruvi: or operatori yordamida kiritilgan kun shanba yoki yakshanba ekanligi aniqlanib, narx 1.2 koeffitsiyentiga (20% qimmatlashish) ko'paytiriladi.
+print("=" * 50)
 
-Zanjir chegirma: Agar shartlar bajarilsa, talaba chegirmasi avvalgi hisoblangan narx ustiga qo'shimcha ravishda (ko'paytirish mantiqi orqali) qo'llaniladi.
+# 5. O'yin yakuniy natijasini chiqarish
+if yutdi:
+    print(f"🎉 TABRIKLAYMIZ! Siz g'olib bo'ldingiz!")
+    print(f"🎯 Men o'ylagan son haqiqatan ham: {yashirin_son}")
+    print(f"📊 Siz buni {urinishlar_soni} ta urinishda topdingiz!")
+elif tahmin_input != 'q':
+    print("😢 Afsuski, urinishlaringiz tugadi.")
+    print(f"🔒 Men o'ylagan yashirin son {yashirin_son} edi.")
+    print("Yana urinib ko'ring, siz albatta uddalaysiz!")
 
-Chiroyli format (:,.2f): Narxni chiqarishda raqamlarni mingliklar bo'yicha ajratadi (masalan, 102,000.00) va tushunarli ko'rinishga keltiradi.
+print("=" * 50)
+💡 Kodning muhim qismlari mantiqi:
+random.randint(1, chegares): Foydalanuvchi tanlagan qiyinlik darajasiga ko'ra 1 dan 50, 100 yoki 200 gacha bo'lgan butun sonni kompyuter xotirasida tasodifiy yaratadi.
+
+while urinishlar_soni < MAKS_URINISH: Sikl ko'pi bilan 10 marta aylanadi. Har bir noto'g'ri harf kiritilganda continue orqali urinishlar soni bekorga kuyib ketishidan himoyalangan.
+
+break operatori: O'yindagi ikki holatda — foydalanuvchi taslim bo'lish uchun 'q' yozganda yoki sonni to'g'ri topganda siklni darhol to'xtatish uchun xizmat qiladi.
