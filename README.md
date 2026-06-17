@@ -1,107 +1,67 @@
 # python-asoslari
-Mana, berilgan barcha talablarga to'liq javob beradigan, xatoliklarni oldindan aniqlaydigan va hisob-kitoblarni 2 xonagacha yaxlitlab ko'rsatadigan konsol kalkulyatori:
+Mana, kiritilgan yosh, hafta kuni va talabalik maqomiga qarab chipta narxini avtomatik va adolatli hisoblab beradigan mukammal Python dasturi.
+
+Bunda barcha chegirmalar va hafta oxiridagi qo'shimcha narxlar zanjirsimon tartibda hisoblanadi:
 
 Python
-# Foydalanuvchiga mavjud amallar ro'yxatini ko'rsatish
+# Boshlang'ich chipta narxi (Asosiy narx)
+CHIPTA_NARXI = 100000  # 100,000 so'm
+
 print("=" * 50)
-print("           MUKAMMAL KONSOL KALKULYATORI           ")
-print("=" * 50)
-print("Mavjud amallar:")
-print(" +  -> Qo'shish          |  -  -> Ayirish")
-print(" * -> Ko'paytirish      |  /  -> Bo'lish (O'nli)")
-print(" // -> Butunli bo'lish   |  %  -> Qoldikli bo'lish")
-print(" ** -> Darajaga ko'tarish |  v  -> Kvadrat ildiz (Faqat 1-son)")
-print(" f  -> Foiz hisoblash (1-sonning 2-son foizi)")
+print("       CHIPTA NARXINI HISOBLASH TIZIMI        ")
 print("=" * 50)
 
-# 1. Kiritilgan ma'lumotlarni tekshirish va casting qilish
-son1_input = input("Birinchi sonni kiriting: ")
+# Foydalanuvchidan ma'lumotlarni so'rash
+yosh = int(input("Yoshingizni kiriting: "))
+hafta_kuni = input("Hafta kunini kiriting (dushanba-yakshanba): ").strip().lower()
+talaba_mi = input("Talabamisiz? (ha/yo'q): ").strip().lower()
 
-# Kiritilgan qiymat haqiqatan ham son ekanligini tekshirish
-# (Nuqta va minus belgilarini hisobga olgan holda)
-if not son1_input.replace('.', '', 1).replace('-', '', 1).isdigit():
-    print("\n[XATOLIK]: Birinchi qiymat o'rniga son kiritmadingiz!")
+# Asosiy narxni yoshga qarab belgilash (4 ta blokli if/elif/else)
+if yosh >= 0 and yosh <= 6:
+    kodlangan_narx = 0
+    chegirma_turi = "0-6 yosh (Bepul)"
+    
+elif yosh >= 7 and yosh <= 17:
+    kodlangan_narx = CHIPTA_NARXI * 0.5  # 50% yarim narx
+    chegirma_turi = "7-17 yosh (50% chegirma)"
+    
+elif yosh >= 60:
+    kodlangan_narx = CHIPTA_NARXI * 0.7  # 30% chegirma (ya'ni 70% narxi qoladi)
+    chegirma_turi = "60+ yosh (30% chegirma)"
+    
 else:
-    son1 = float(son1_input)
-    amal = input("Amalni kiriting (+, -, *, /, //, %, **, v, f): ").strip()
+    kodlangan_narx = CHIPTA_NARXI  # To'liq narx
+    chegirma_turi = "To'liq narx (Chegirmasiz)"
 
-    # Kvadrat ildiz amali faqat bitta son bilan ishlagani uchun uni alohida tekshiramiz
-    if amal == 'v':
-        if son1 < 0:
-            print("\n[XATOLIK]: Manfiy sonning kvadrat ildizini hisoblab bo'lmaydi!")
-        else:
-            natija = son1 ** 0.5
-            print("-" * 50)
-            print(f"Natija: √{son1} = {natija:.2f}")
-            print("-" * 50)
-            
-    # Boshqa barcha amallar uchun ikkinchi sonni ham so'raymiz
-    elif amal in ['+', '-', '*', '/', '//', '%', '**', 'f']:
-        son2_input = input("Ikkinchi sonni kiriting: ")
-        
-        if not son2_input.replace('.', '', 1).replace('-', '', 1).isdigit():
-            print("\n[XATOLIK]: Ikkinchi qiymat o'rniga son kiritmadingiz!")
-        else:
-            son2 = float(son2_input)
-            print("-" * 50)
+# Hafta oxirini tekshirish (and / or operatorlari ishlatilgan)
+# Dam olish kunlari chipta narxi 20% ga qimmatlashadi
+if hafta_kuni == "shanba" or hafta_kuni == "yakshanba":
+    kodlangan_narx = kodlangan_narx * 1.2
+    kun_turi = "Dam olish kuni (+20% qimmatlashish)"
+else:
+    kun_turi = "Ish kuni (Oddiy tarif)"
 
-            # 2. Amallarni bajarish va 0 ga bo'lishni tekshirish
-            if amal == '+':
-                natija = son1 + son2
-                print(f"Natija: {son1} + {son2} = {natija:.2f}")
-                
-            elif amal == '-':
-                natija = son1 - son2
-                print(f"Natija: {son1} - {son2} = {natija:.2f}")
-                
-            elif amal == '*':
-                natija = son1 * son2
-                print(f"Natija: {son1} * {son2} = {natija:.2f}")
-                
-            elif amal == '/':
-                if son2 == 0:
-                    print("[XATOLIK]: Sonni 0 ga bo'lish mumkin emas!")
-                else:
-                    natija = son1 / son2
-                    print(f"Natija: {son1} / {son2} = {natija:.2f}")
-                    
-            elif amal == '//':
-                if son2 == 0:
-                    print("[XATOLIK]: 0 ga butunli bo'lish mumkin emas!")
-                else:
-                    natija = son1 // son2
-                    print(f"Natija: {son1} // {son2} = {natija:.2f}")
-                    
-            elif amal == '%':
-                if son2 == 0:
-                    print("[XATOLIK]: 0 ga bo'lgandagi qoldiqni hisoblab bo'lmaydi!")
-                else:
-                    natija = son1 % son2
-                    print(f"Natija: {son1} % {son2} = {natija:.2f}")
-                    
-            elif amal == '**':
-                natija = son1 ** son2
-                print(f"Natija: {son1} ^ {son2} = {natija:.2f}")
-                
-            elif amal == 'f':
-                # a dan b foizni topish formulasi: (a * b) / 100
-                natija = (son1 * son2) / 100
-                print(f"Natija: {son1} sonining {son2}% foizi = {natija:.2f}")
-            
-            print("-" * 50)
-    else:
-        print("\n[XATOLIK]: Noto'g'ri amal kiritdingiz!")
-💡 Kodning muhim qismlari tushuntirishi:
-Xavfsiz kiritish: isdigit() tekshiruvi orqali foydalanuvchi tasodifan harf yoki belgi kiritib yuborsa, dastur xatolik bilan o'chib qolmaydi, balki tushunarli ogohlantirish beradi.
+# Talabalik chegirmasini qo'llash
+# Agar foydalanuvchi talaba bo'lsa va chipta bepul bo'lmasa, yana 15% chegirma beriladi
+if talaba_mi == "ha" and kodlangan_narx > 0:
+    kodlangan_narx = kodlangan_narx * 0.85  # 15% chegirma
+    talaba_status = "Talaba (Qo'shimcha 15% chegirma)"
+else:
+    talaba_status = "Talaba emas / Tatbiq etilmaydi"
 
-0 ga bo'lish himoyasi: /, //, va % amallarining barchasida if son2 == 0: sharti orqali dasturning ZeroDivisionError berishini oldi olindi.
+# Yakuniy natijani chiroyli formatda chiqarish
+print("\n" + "-"*15 + " CHIPTA CHЕKI " + "-"*15)
+print(f"📊 Yosh tarifi:       {chegirma_turi}")
+print(f"📅 Hafta turi:       {kun_turi}")
+print(f"🎓 Talaba maqomi:     {talaba_status}")
+print("-" * 44)
+print(f"💵 Yakuniy narx:      {kodlangan_narx:,.2f} so'm")
+print("=" * 44)
+💡 Tizim qanday ishlaydi?
+Yosh filtratsiyasi: yosh >= 0 and yosh <= 6 kabi shartlar orqali foydalanuvchining yosh toifasi aniqlanadi va dastlabki narx shakllantiriladi.
 
-Kvadrat ildiz (math'siz): Matematika qoidasiga ko'ra sonning 0.5 darajasi uning kvadrat ildiziga teng ( 
-x
+Kun tekshiruvi: or operatori yordamida kiritilgan kun shanba yoki yakshanba ekanligi aniqlanib, narx 1.2 koeffitsiyentiga (20% qimmatlashish) ko'paytiriladi.
 
-​
- =x 
-0.5
- ), dasturda aynan shu mantiq ishlatildi.
+Zanjir chegirma: Agar shartlar bajarilsa, talaba chegirmasi avvalgi hisoblangan narx ustiga qo'shimcha ravishda (ko'paytirish mantiqi orqali) qo'llaniladi.
 
-Formatlash (:.2f): Har qanday uzun kasr son chiqadigan natija f-string ichida nuqtadan keyin 2 ta raqamgacha yaxlitlab ko'rsatiladi.
+Chiroyli format (:,.2f): Narxni chiqarishda raqamlarni mingliklar bo'yicha ajratadi (masalan, 102,000.00) va tushunarli ko'rinishga keltiradi.
