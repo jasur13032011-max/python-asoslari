@@ -1,146 +1,100 @@
 # python-asoslari
-Mana, ma'lumotlar strukturasi (ichma-ich lug'atlar, to'plamlar) va mukammal qidiruv/filtr tizimiga ega bo'lgan Kontaktlar kitobi (Telefon ma'lumotnomasi) dasturi:
+Xavfsiz, murakkab va foydalanuvchi talablariga moslashuvchan parollar yaratuvchi hamda jarayon vaqtini qayd etuvchi professional Python dasturi:
 
 Python
-# Boshlang'ich kontaktlar ma'lumotlar bazasi
-# Struktura: {ism: {tel: str, manzil: str, email: str}}
-kontaktlar = {
-    "Ali Valiyev": {"tel": "+998901234567", "manzil": "Toshkent", "email": "ali@mail.com"},
-    "Zuhra Karimova": {"tel": "+998939876543", "manzil": "Samarqand", "email": "zuhra@gmail.com"},
-    "Olim Nabiyev": {"tel": "+998914445566", "manzil": "Toshkent", "email": "olim@it.uz"},
-    "Asal Shokirova": {"tel": "+998997778899", "manzil": "Farg'ona", "email": "asal@design.com"}
-}
+import random
+import string
+from datetime import datetime
 
-def tel_va_ism_validatsiya(ism: str, tel: str) -> bool:
-    """Ism bo'sh emasligi va telefon raqami to'g'ri formatdaligini tekshiradi."""
-    if not ism.strip():
-        print("❌ Xatolik: Ism bo'sh bo'lishi mumkin emas!")
-        return False
-    # Telefon raqami kamida 9 ta raqam bo'lishi va + belgisi bilan boshlanishi mumkin
-    tozalangan_tel = tel.replace("+", "").strip()
-    if not tozalangan_tel.isdigit() or len(tozalangan_tel) < 9:
-        print("❌ Xatolik: Telefon raqami formati noto'g'ri! (Faqat raqamlar yoki + belgisi)")
-        return False
-    return True
-
-while True:
-    print("\n" + "=" * 15 + " KONTAKTLAR DASTURI " + "=" * 15)
-    print("1. Yangi kontakt qo'shish")
-    print("2. Kontakt qidirish (Ism yoki Tel bo'yicha)")
-    print("3. Kontaktni o'chirish")
-    print("4. Barcha kontaktlarni ko'rish (Alifbo tartibida)")
-    print("5. Shaharlar bo'yicha filtrlash (Dict Comprehension)")
-    print("6. Tizim statistikasi (Set va Tahlil)")
-    print("7. Chiqish")
+# ==========================================
+# 1-FUNKSIYA: FOYDALANUVChI PARAMЕTRLARINI OLISh
+# ==========================================
+def parol_sozlamalari():
+    """Foydalanuvchidan parol uzunligi va tarkibini so'raydi va qaytaradi."""
+    print("=" * 50)
+    print("         PROFFЕSIONAL PAROL GЕNЕRATORI        ")
     print("=" * 50)
     
-    tanlov = input("Amalni tanlang (1-7): ").strip()
+    # Parol uzunligi validatsiyasi (8 dan 32 gacha)
+    while True:
+        uzunlik_input = input("Parol uzunligini kiriting (8-32): ").strip()
+        if uzunlik_input.isdigit():
+            uzunlik = int(uzunlik_input)
+            if 8 <= uzunlik <= 32:
+                break
+        print("⚠️ Xatolik: Iltimos, 8 dan 32 gacha bo'lgan butun son kiriting!")
+
+    # Tarkib bo'yicha so'rovlar
+    katta_harf = input("Katta harflar bo'lsinmi? (ha/yo'q): ").strip().lower() == 'ha'
+    raqamlar = input("Raqamlar bo'lsinmi? (ha/yo'q): ").strip().lower() == 'ha'
+    belgilar = input("Maxsus belgilar bo'lsinmi? (ha/yo'q): ").strip().lower() == 'ha'
     
-    # 1. Yangi kontakt qo'shish
-    if tanlov == "1":
-        ism = input("Kontakt ismini kiriting: ").strip()
-        tel = input("Telefon raqamini kiriting (Masalan: +998901234567): ").strip()
-        manzil = input("Yashash shahrini kiriting: ").strip().capitalize()
-        email = input("Email manzilini kiriting: ").strip()
-        
-        if tel_va_ism_validatsiya(ism, tel):
-            if ism in kontaktlar:
-                print(f"⚠️ {ism} ismli kontakt allaqachon mavjud! Ma'lumotlar yangilandi.")
-            
-            # Ichma-ich dict yaratish qismi
-            kontaktlar[ism] = {
-                "tel": tel,
-                "manzil": manzil if manzil else "Noma'lum",
-                "email": email if email else "Noma'lum"
-            }
-            print(f"✅ {ism} muvaffaqiyatli saqlandi.")
-            
-    # 2. Qidirish (Ism yoki Tel bo'yicha)
-    elif tanlov == "2":
-        kalit = input("Qidirilayotgan ism yoki telefon raqamini kiriting: ").strip().lower()
-        topildi = False
-        
-        for ism, info in kontaktlar.items():
-            # Ism yoki telefon mos kelsa (qisman qidiruv ham ishlaydi)
-            if kalit in ism.lower() or kalit in info["tel"]:
-                print(f"\n👤 {ism}:")
-                print(f"  📞 Tel:    {info['tel']}")
-                print(f"  📍 Manzil: {info['manzil']}")
-                print(f"  📧 Email:  {info['email']}")
-                topildi = True
-                
-        if not topildi:
-            print("🔍 Afsuski, hech qanday kontakt topilmadi.")
-            
-    # 3. O'chirish
-    elif tanlov == "3":
-        ism = input("O'chirmoqchi bo'lgan kontakt ismini kiriting: ").strip()
-        if ism in kontaktlar:
-            # Lug'atdan kalit so'z bo'yicha butunlay o'chirish
-            del kontaktlar[ism]
-            print(f"🗑️ '{ism}' kontaktlar ro'yxatidan o'chirildi.")
-        else:
-            print("❌ Bunday ismli kontakt topilmadi.")
-            
-    # 4. Hammasini ko'rsatish (Alifbo tartibida)
-    elif tanlov == "4":
-        if not kontaktlar:
-            print("📭 Kontaktlar kitobi bo'sh.")
-            continue
-            
-        print("\n🗂️ BARCHA KONTAKTLAR (ALIFBO TARTIBIDA):")
-        # Kalitlar bo'yicha saralangan ro'yxat olish
-        for ism in sorted(kontaktlar.keys()):
-            info = kontaktlar[ism]
-            print(f" ▫️ {ism} -> 📞 {info['tel']} | 📍 {info['manzil']}")
-            
-    # 5. Dict Comprehension bilan filtrlash
-    elif tanlov == "5":
-        shahar = input("Qaysi shahardagi kontaktlarni filtrlamoqchisiz?: ").strip().capitalize()
-        
-        # Dict comprehension yordamida yangi lug'at hosil qilish
-        filtr_kontaktlar = {k: v for k, v in kontaktlar.items() if v["manzil"] == shahar}
-        
-        print(f"\n📍 {shahar} shahridagi kontaktlar:")
-        if not filtr_kontaktlar:
-            print("   Bu shahardan hech kim topilmadi.")
-        else:
-            for ism, info in filtr_kontaktlar.items():
-                print(f"  👤 {ism} | 📞 {info['tel']}")
-                
-    # 6. Statistika va Set (Unique shaharlar)
-    elif tanlov == "6":
-        if not kontaktlar:
-            print("⚠️ Statistika uchun ma'lumot yetarli emas.")
-            continue
-            
-        jami_kontakt = len(kontaktlar)
-        
-        # Set comprehension yordamida faqat unikal shaharlarni ajratib olish
-        unikal_shaharlar = {info["manzil"] for info in kontaktlar.values()}
-        
-        # Eng uzun ismni topish
-        eng_uzun_ism = max(kontaktlar.keys(), key=len)
-        
-        print("\n" + "-"*15 + " TIZIM STATISTIKASI " + "-"*15)
-        print(f"📊 Jami kontaktlar soni:  {jami_kontakt} ta")
-        print(f"🔤 Eng uzun kontakt ismi: {eng_uzun_ism} ({len(eng_uzun_ism)} ta belgi)")
-        print(f"🗺️ Unikal shaharlar ({len(unikal_shaharlar)} ta): {', '.join(unikal_shaharlar)}")
-        print("-" * 50)
-        
-    # 7. Chiqish
-    elif tanlov == "7":
-        print("👋 Dastur tugatildi. Kontaktlar xavfsiz saqlandi!")
-        break
-    else:
-        print("❌ Noto'g'ri buyruq! 1 dan 7 gacha bo'lgan raqam kiriting.")
-💡 Kodning kuchli tomonlari:
-Murakkab ma'lumotlar arxitekturasi: Har bir insonning ismi asosiy kalit (key), uning ichidagi ma'lumotlar esa ikkinchi kichik lug'at (sub-dictionary) hisoblanadi.
+    return uzunlik, katta_harf, raqamlar, belgilar
 
-Dict va Set Comprehension:
 
-{k: v for k, v in kontaktlar.items() if ...} kodi bitta qatorda butun boshli lug'atni filtrlaydi.
+# ==========================================
+# 2-FUNKSIYA: SIMVOLLAR BAZASINI ShAKLLANTIRISh
+# ==========================================
+def belgi_bazasi_yaratish(katta_harf, raqamlar, belgilar):
+    """Tanlovga qarab string modulidan kerakli belgilarni yig'adi."""
+    # Standart holatda faqat kichik harflar har doim bo'ladi
+    baza = string.ascii_lowercase
+    
+    if katta_harf:
+        baza += string.ascii_uppercase
+    if raqamlar:
+        baza += string.digits
+    if belgilar:
+        baza += string.punctuation
+        
+    return baza
 
-{info["manzil"] for info in kontaktlar.values()} to'plam (set) yaratadi, to'plamlar esa o'z ichida bir xil elementlarni takrorlamaydi va unikal ro'yxat hosil qilib beradi.
 
-Professional Validatsiya: Ism bo'sh qolishi yoki telefon o'rniga harf kiritilishining oldi mustahkam olingan.
+# ==========================================
+# 3-FUNKSIYA: PAROLNI GЕNЕRATSIYA QILISh
+# ==========================================
+def parol_generatsiya(uzunlik, simvollar_bazasi):
+    """random.choices yordamida bazadan tasodifiy parolni yig'adi."""
+    if not simvollar_bazasi:
+        return "Xatolik: Hech bo'lmasa bitta belgi turini tanlashingiz kerak edi!"
+        
+    # random.choices ro'yxat qaytaradi, uni .join() bilan matnga aylantiramiz
+    tasodifiy_list = random.choices(simvollar_bazasi, k=uzunlik)
+    tayyor_parol = "".join(tasodifiy_list)
+    return tayyor_parol
+
+
+# ==========================================
+# ASOSIY IShGA TUShIRISh BLOKI
+# ==========================================
+if __name__ == "__main__":
+    # 1. Sozlamalarni olish
+    uzunlik, katta, raqam, belgi = parol_sozlamalari()
+    
+    # 2. Bazani tayyorlash
+    baza = belgi_bazasi_yaratish(katta, raqam, belgi)
+    
+    # 3. Parol yaratish
+    yangi_parol = parol_generatsiya(uzunlik, baza)
+    
+    # 4. datetime yordamida joriy vaqtni aniqlash va chiqarish
+    hozirgi_vaqt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    print("\n" + "🌟" * 10 + " NATIJA " + "🌟" * 10)
+    print(f"🔑 Yaratilgan parol: {yangi_parol}")
+    print(f"📅 Yaratilgan vaqti: {hozirgi_vaqt}")
+    print("=" * 50)
+💡 Dasturdagi muhim vositalar tushuntirishi:
+string moduli elementlari:
+
+string.ascii_lowercase: barcha kichik ingliz harflari (a-z).
+
+string.ascii_uppercase: barcha katta ingliz harflari (A-Z).
+
+string.digits: 0 dan 9 gacha bo'lgan raqamlar matni (0123456789).
+
+string.punctuation: barcha maxsus belgilar (!@#$%^&*()_+...).
+
+random.choices(baza, k=uzunlik): Berilgan simvollar bazasidan ko'rsatilgan k (uzunlik) miqdoricha elementni tasodifiy ravishda (takrorlanish imkoniyati bilan) juda tezkorlik bilan tanlab, ro'yxat holatida qaytaradi.
+
+datetime.now().strftime(...): Parol aynan qaysi yilda, oyda, kunda va hatto sekundda yaratilganini inson ko'ziga chiroyli va tushunarli formatga solib ko'rsatadi.
