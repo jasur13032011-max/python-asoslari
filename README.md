@@ -1,90 +1,81 @@
 # python-asoslari
-Mana, random moduli, while sikli va qiyinlik darajalariga ega bo'lgan, qiziqarli va mukammal "Sonni top" o'yini:
+Mana, talabalar baholarini qabul qiladigan, ularni qat'iy tekshiruvdan o'tkazadigan (validatsiya) va barcha statistik ko'rsatkichlarni hisoblab beradigan toza va mukammal Python dasturi:
 
 Python
-import random
+print("=" * 55)
+print("         TALABALAR BAHOLARI TAHLILI TIZIMI        ")
+print("=" * 55)
 
-print("=" * 50)
-print("          'SONNI TOP' INTЕRAKTIV O'YINI          ")
-print("=" * 50)
-print("O'yin qoidalari:")
-print("- Tanlangan orliqdagi yashirin sonni topishingiz kerak.")
-print("- Sizda jami 10 ta urinish bor.")
-print("- O'yinni to'xtatish uchun 'q' tugmasini bosing.")
-print("=" * 50)
+baholar = []
+baho_soni = 1
 
-# 1. Qiyinlik darajasini tanlash
-print("Qiyinlik darajasini tanlang:")
-print("1 -> Oson (1 - 50 oralig'ida)")
-print("2 -> O'rta (1 - 100 oralig'ida)")
-print("3 -> Qiyin (1 - 200 oralig'ida)")
-print("-" * 50)
-
-daraja = input("Daraja raqamini kiriting (1/2/3): ").strip()
-
-# Tanlangan darajaga qarab chegarani belgilash
-if daraja == "1":
-    chegara = 50
-elif daraja == "3":
-    chegara = 200
-else:
-    # Agar foydalanuvchi noto'g'ri kiritsa, standart holatda 2-daraja (100) tanlanadi
-    chegara = 100
-    print("[Eslatma]: Standart o'rta daraja (1-100) tanlandi.")
-
-# 2. random.randint yordamida tasodifiy sonni tanlash
-yashirin_son = random.randint(1, chegares)
-print(f"\nMen 1 dan {chegara} gacha bo'lgan sonni o'yladim. Uni topishga urinib ko'ring!")
-print("=" * 50)
-
-# O'yin o'zgaruvchilari
-urinishlar_soni = 0
-MAKS_URINISH = 10
-yutdi = False
-
-# 3. while sikli orqali urinishlarni boshqarish
-while urinishlar_soni < MAKS_URINISH:
-    urinishlar_soni += 1
-    tahmin_input = input(f"[{urinishlar_soni}-urinish] Tahminingizni kiriting: ").strip().lower()
+# 1. Kamida 5 ta to'g'ri baho kiritishni ta'minlaydigan sikl
+while len(baholar) < 5:
+    kiritish = input(f"{baho_soni}-bahoni kiriting (yoki tugatish uchun 'ok' deb yozing): ").strip().lower()
     
-    # Foydalanuvchi 'q' yozsa o'yinni to'xtatish (break)
-    if tahmin_input == 'q':
-        print(f"\nO'yin to'xtatildi. Yashirin son {yashirin_son} edi. Keyingi safar ko'rishguncha!")
-        break
-        
-    # Kiritilgan qiymat son ekanligini tekshirish
-    if not tahmin_input.isdigit():
-        print("[Ogohlantirish]: Iltimos, faqat butun son yoki chiqish uchun 'q' kiriting.")
-        urinishlar_soni -= 1 # Noto'g'ri kiritish urinishlar sonini kamaytirmaydi
+    # Agar 5 ta baho bo'lgan bo'lsa va 'ok' yozilsa, siklni to'xtatish
+    if kiritish == 'ok':
+        if len(baholar) >= 5:
+            break
+        else:
+            print(f"[Ogohlantirish]: Kamida 5 ta baho bo'lishi shart! Hozircha {len(baholar)} ta kiritdingiz.")
+            continue
+
+    # Kiritilgan qiymat raqam ekanligini tekshirish
+    if not kiritish.isdigit():
+        print("[Xatolik]: Iltimos, faqat butun son kiriting!")
         continue
         
-    tahmin = int(tahmin_input)
+    baho = int(kiritish)
     
-    # 4. Katta / Kichik / To'g'ri xabarlarini chiqarish
-    if tahmin < yashirin_son:
-        print("❌ Yo'q, men o'ylagan son bundan KATTA!")
-    elif tahmin > yashirin_son:
-        print("❌ Yo'q, men o'ylagan son bundan KICHIK!")
-    else:
-        yutdi = True
-        break  # To'g'ri topilsa sikldan chiqiladi
+    # Validatsiya: 0-100 oralig'idan tashqaridagi baholarni rad etish
+    if baho < 0 or baho > 100:
+        print("[Rad etildi]: Baho faqat 0 dan 100 gacha bo'lishi mumkin!")
+        continue
+        
+    baholar.append(baho)
+    baho_soni += 1
 
-print("=" * 50)
+print("\n" + "="*20 + " TAHLIL NATIJALARI " + "="*20)
 
-# 5. O'yin yakuniy natijasini chiqarish
-if yutdi:
-    print(f"🎉 TABRIKLAYMIZ! Siz g'olib bo'ldingiz!")
-    print(f"🎯 Men o'ylagan son haqiqatan ham: {yashirin_son}")
-    print(f"📊 Siz buni {urinishlar_soni} ta urinishda topdingiz!")
-elif tahmin_input != 'q':
-    print("😢 Afsuski, urinishlaringiz tugadi.")
-    print(f"🔒 Men o'ylagan yashirin son {yashirin_son} edi.")
-    print("Yana urinib ko'ring, siz albatta uddalaysiz!")
+# 2. Baholarni oshib boruvchi tartibda saralash
+baholar.sort()
+print(f"📈 Saralangan baholar (oshib boruvchi): {baholar}")
 
-print("=" * 50)
+# 3. Matematik statistikani hisoblash
+eng_yuqori = max(baholar)
+eng_past = min(baholar)
+ortacha = sum(baholar) / len(baholar)
+
+# Mediana hisoblash (Saralangan listning o'rtasidagi qiymat)
+n = len(baholar)
+if n % 2 == 1:
+    mediana = baholar[n // 2]
+else:
+    mediana = (baholar[(n // 2) - 1] + baholar[n // 2]) / 2
+
+# 4. List comprehension yordamida a'lo baholarni (90+) filtrlash
+alo_baholar = [b for b in baholar if b >= 90]
+
+# 5. Qoniqarsiz baholarni (60 dan kam) ajratish
+qoniqarsiz_baholar = [b for b in baholar if b < 60]
+
+# Natijalarni chiroyli f-string formatida chiqarish
+print("-" * 59)
+print(f"📊 Jami kiritilgan baholar soni: {n} ta")
+print(f"🧮 O'rtacha ball:               {ortacha:.2f}")
+print(f"⭐ Eng yuqori ball:             {eng_yuqori}")
+print(f"📉 Eng past ball:               {eng_past}")
+print(f"🎯 Mediana ko'rsatkichi:        {mediana:.1f}")
+print("-" * 59)
+print(f"🥇 A'lo baholar (90+):          {alo_baholar if alo_baholar else 'Yo\'q'}")
+print(f"❌ Qoniqarsiz baholar (<60):    {qoniqarsiz_baholar if qoniqarsiz_baholar else 'Yo\'q'}")
+print("=" * 59)
 💡 Kodning muhim qismlari mantiqi:
-random.randint(1, chegares): Foydalanuvchi tanlagan qiyinlik darajasiga ko'ra 1 dan 50, 100 yoki 200 gacha bo'lgan butun sonni kompyuter xotirasida tasodifiy yaratadi.
+Qat'iy Validatsiya: Dastur foydalanuvchi 0 dan kichik yoki 100 dan katta son kiritsa, uni baholar ro'yxatiga qo'shmaydi va qaytadan to'g'ri son kiritishni talab qiladi.
 
-while urinishlar_soni < MAKS_URINISH: Sikl ko'pi bilan 10 marta aylanadi. Har bir noto'g'ri harf kiritilganda continue orqali urinishlar soni bekorga kuyib ketishidan himoyalangan.
+Moslashuvchan soni: while len(baholar) < 5 sharti minimal chegarani belgilaydi, lekin talaba xohlasa 5 tadan ko'p (masalan, 10 ta) baho kiritib, keyin 'ok' yozuvi orqali tahlilni boshlashi mumkin.
 
-break operatori: O'yindagi ikki holatda — foydalanuvchi taslim bo'lish uchun 'q' yozganda yoki sonni to'g'ri topganda siklni darhol to'xtatish uchun xizmat qiladi.
+List Comprehension: [b for b in baholar if b >= 90] kodi an'anaviy for siklini bir qatorga qisqartirib, tezkor filtr qilish imkonini beradi.
+
+Mediana algoritmi: Agar kiritilgan baholar soni toq bo'lsa, ro'yxatning qo'q o'rtasidagi sonni oladi. Agar juft bo'lsa, o'rtadagi ikkita sonning o'rtacha arifmetigini hisoblab beradi.
