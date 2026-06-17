@@ -1,81 +1,134 @@
 # python-asoslari
-Mana, talabalar baholarini qabul qiladigan, ularni qat'iy tekshiruvdan o'tkazadigan (validatsiya) va barcha statistik ko'rsatkichlarni hisoblab beradigan toza va mukammal Python dasturi:
-
 Python
-print("=" * 55)
-print("         TALABALAR BAHOLARI TAHLILI TIZIMI        ")
-print("=" * 55)
+# Boshlang'ich ro'yxatlar
+bajarilmagan_vazifalar = []  # Ichida lug'atlar (dict) saqlanadi
+bajarilgan_vazifalar = []
 
-baholar = []
-baho_soni = 1
+# Muhimlik darajalarini tartiblash uchun yordamchi lug'at
+MUHIMLIK_DARAJA = {"high": 1, "medium": 2, "low": 3}
 
-# 1. Kamida 5 ta to'g'ri baho kiritishni ta'minlaydigan sikl
-while len(baholar) < 5:
-    kiritish = input(f"{baho_soni}-bahoni kiriting (yoki tugatish uchun 'ok' deb yozing): ").strip().lower()
+while True:
+    print("\n" + "=" * 15 + " VAZIFALAR MЕNЕJЕRI " + "=" * 15)
+    print("1. Yangi vazifa qo'shish")
+    print("2. Vazifalar ro'yxatini ko'rish (Saralangan)")
+    print("3. Vazifani bajarilgan deb belgilash")
+    print("4. Vazifani o'chirish")
+    print("5. Statistikani ko'rish")
+    print("6. Chiqish")
+    print("=" * 50)
     
-    # Agar 5 ta baho bo'lgan bo'lsa va 'ok' yozilsa, siklni to'xtatish
-    if kiritish == 'ok':
-        if len(baholar) >= 5:
-            break
-        else:
-            print(f"[Ogohlantirish]: Kamida 5 ta baho bo'lishi shart! Hozircha {len(baholar)} ta kiritdingiz.")
+    tanlov = input("Amalni tanlang (1-6): ").strip()
+    
+    # 1. Vazifa qo'shish
+    if tanlov == "1":
+        matn = input("Vazifa matnini kiriting: ").strip()
+        if not matn:
+            print("❌ Vazifa matni bo'sh bo'lishi mumkin emas!")
             continue
-
-    # Kiritilgan qiymat raqam ekanligini tekshirish
-    if not kiritish.isdigit():
-        print("[Xatolik]: Iltimos, faqat butun son kiriting!")
-        continue
+            
+        muhimlik = input("Muhimlik darajasi (low, medium, high): ").strip().lower()
+        if muhimlik not in MUHIMLIK_DARAJA:
+            print("⚠️ Noto'g'ri daraja! Standart 'low' deb belgilandi.")
+            muhimlik = "low"
+            
+        yangi_vazifa = {"matn": matn, "muhimlik": muhimlik}
+        bajarilmagan_vazifalar.append(yangi_vazifa)
+        print(f"✅ Vazifa muvaffaqiyatli qo'shildi!")
         
-    baho = int(kiritish)
-    
-    # Validatsiya: 0-100 oralig'idan tashqaridagi baholarni rad etish
-    if baho < 0 or baho > 100:
-        print("[Rad etildi]: Baho faqat 0 dan 100 gacha bo'lishi mumkin!")
-        continue
+    # 2. Vazifalarni ko'rish va saralash
+    elif tanlov == "2":
+        if not bajarilmagan_vazifalar and not bajarilgan_vazifalar:
+            print("📭 Vazifalar ro'yxati butunlay bo'sh.")
+            continue
+            
+        # Saralash: high -> medium -> low ketma-ketligida
+        # lambda funksiyasi har bir vazifaning muhimlik sonini aniqlab beradi
+        bajarilmagan_vazifalar.sort(key=lambda x: MUHIMLIK_DARAJA[x["muhimlik"]])
         
-    baholar.append(baho)
-    baho_soni += 1
+        print("\n📋 BAJARILMAGAN VAZIFALAR:")
+        if not bajarilmagan_vazifalar:
+            print("   Barcha vazifalar bajarilgan! 🎉")
+        else:
+            for indeks, vazifa in enumerate(bajarilmagan_vazifalar, 1):
+                # Vizual chiroyli ko'rsatish uchun muhimlikka qarab belgi qo'yamiz
+                belgi = "🔴" if vazifa["muhimlik"] == "high" else "🟡" if vazifa["muhimlik"] == "medium" else "🟢"
+                print(f"  {indeks}. {belgi} [{vazifa['muhimlik'].upper()}] {vazifa['matn']}")
+                
+        print("\n✅ BAJARILGAN VAZIFALAR:")
+        if not bajarilgan_vazifalar:
+            print("   Hozircha bajarilgan vazifalar yo'q.")
+        else:
+            for indeks, vazifa in enumerate(bajarilgan_vazifalar, 1):
+                print(f"  [✓] {vazifa['matn']}")
+                
+    # 3. Bajarilganini belgilash
+    elif tanlov == "3":
+        if not bajarilmagan_vazifalar:
+            print("⚠️ Bajarilmagan vazifalar mavjud emas.")
+            continue
+            
+        # Avval ro'yxatni ko'rsatamiz
+        for indeks, vazifa in enumerate(bajarilmagan_vazifalar, 1):
+            print(f"  {indeks}. {vazifa['matn']}")
+            
+        raqam_input = input("Bajarilgan vazifa raqamini kiriting: ").strip()
+        if raqam_input.isdigit():
+            raqam = int(raqam_input)
+            if 1 <= raqam <= len(bajarilmagan_vazifalar):
+                # Vazifani bajarilmaganlar ro'yxatidan sug'urib olib, bajarilganlarga qo'shamiz
+                bajarilgan = bajarilmagan_vazifalar.pop(raqam - 1)
+                bajarilgan_vazifalar.append(bajarilgan)
+                print("🎉 Barakalla! Vazifa bajarilganlar ro'yxatiga ko'chirildi.")
+            else:
+                print("❌ Bunday raqamdagi vazifa yo'q!")
+        else:
+            print("❌ Iltimos, faqat son kiriting!")
+            
+    # 4. O'chirish
+    elif tanlov == "4":
+        if not bajarilmagan_vazifalar:
+            print("⚠️ O'chirish uchun vazifa yo'q.")
+            continue
+            
+        for indeks, vazifa in enumerate(bajarilmagan_vazifalar, 1):
+            print(f"  {indeks}. {vazifa['matn']}")
+            
+        raqam_input = input("O'chirmoqchi bo'lgan vazifa raqamini kiriting: ").strip()
+        if raqam_input.isdigit():
+            raqam = int(raqam_input)
+            if 1 <= raqam <= len(bajarilmagan_vazifalar):
+                ochirilgan = bajarilmagan_vazifalar.pop(raqam - 1)
+                print(f"🗑 '{ochirilgan['matn']}' o'chirib tashlandi.")
+            else:
+                print("❌ Bunday raqamdagi vazifa yo'q!")
+        else:
+            print("❌ Iltimos, faqat son kiriting!")
+            
+    # 5. Statistika
+    elif tanlov == "5":
+        qolgan_soni = len(bajarilmagan_vazifalar)
+        bajarilgan_soni = len(bajarilgan_vazifalar)
+        jami_soni = qolgan_soni + bajarilgan_soni
+        
+        # Bajarish foizini xavfsiz hisoblash (0 ga bo'linish xavfisiz)
+        foiz = (bajarilgan_soni / jami_soni) * 100 if jami_soni > 0 else 0
+        
+        print("\n" + "-"*15 + " STATISTIKA " + "-"*15)
+        print(f"📊 Jami vazifalar:       {jami_soni} ta")
+        print(f"✅ Bajarilganlar:       {bajarilgan_soni} ta")
+        print(f"⏳ Qolgan vazifalar:    {qolgan_soni} ta")
+        print(f"📈 Bajarish unumdorligi: {foiz:.1f}%")
+        print("-" * 42)
+        
+    # 6. Chiqish
+    elif tanlov == "6":
+        print("👋 Dastur tugatildi. Kuningiz xayrli o'tsin!")
+        break
+    else:
+        print("❌ Noto'g'ri buyruq! Iltimos, 1 dan 6 gacha bo'lgan son kiriting.")
+💡 Kod arxitekturasi va funksionalligi:
+Lug'atlar ro'yxati (List of Dicts): Har bir vazifa bitta matndan iborat bo'lmay, o'zida ham matnni, ham unga tegishli muhimlik holatini ({"matn": ..., "muhimlik": ...}) jamlaydi.
 
-print("\n" + "="*20 + " TAHLIL NATIJALARI " + "="*20)
+Saralash algoritmi (sort + lambda): bajarilmagan_vazifalar.sort(key=lambda x: MUHIMLIK_DARAJA[x["muhimlik"]]) qatori vazifalarni alifbo bo'yicha emas, aynan biz belgilagan tartibda (avval high, keyin medium, keyin low) chiroyli tartiblab beradi.
 
-# 2. Baholarni oshib boruvchi tartibda saralash
-baholar.sort()
-print(f"📈 Saralangan baholar (oshib boruvchi): {baholar}")
-
-# 3. Matematik statistikani hisoblash
-eng_yuqori = max(baholar)
-eng_past = min(baholar)
-ortacha = sum(baholar) / len(baholar)
-
-# Mediana hisoblash (Saralangan listning o'rtasidagi qiymat)
-n = len(baholar)
-if n % 2 == 1:
-    mediana = baholar[n // 2]
-else:
-    mediana = (baholar[(n // 2) - 1] + baholar[n // 2]) / 2
-
-# 4. List comprehension yordamida a'lo baholarni (90+) filtrlash
-alo_baholar = [b for b in baholar if b >= 90]
-
-# 5. Qoniqarsiz baholarni (60 dan kam) ajratish
-qoniqarsiz_baholar = [b for b in baholar if b < 60]
-
-# Natijalarni chiroyli f-string formatida chiqarish
-print("-" * 59)
-print(f"📊 Jami kiritilgan baholar soni: {n} ta")
-print(f"🧮 O'rtacha ball:               {ortacha:.2f}")
-print(f"⭐ Eng yuqori ball:             {eng_yuqori}")
-print(f"📉 Eng past ball:               {eng_past}")
-print(f"🎯 Mediana ko'rsatkichi:        {mediana:.1f}")
-print("-" * 59)
-print(f"🥇 A'lo baholar (90+):          {alo_baholar if alo_baholar else 'Yo\'q'}")
-print(f"❌ Qoniqarsiz baholar (<60):    {qoniqarsiz_baholar if qoniqarsiz_baholar else 'Yo\'q'}")
-print("=" * 59)
-💡 Kodning muhim qismlari mantiqi:
-Qat'iy Validatsiya: Dastur foydalanuvchi 0 dan kichik yoki 100 dan katta son kiritsa, uni baholar ro'yxatiga qo'shmaydi va qaytadan to'g'ri son kiritishni talab qiladi.
-
-Moslashuvchan soni: while len(baholar) < 5 sharti minimal chegarani belgilaydi, lekin talaba xohlasa 5 tadan ko'p (masalan, 10 ta) baho kiritib, keyin 'ok' yozuvi orqali tahlilni boshlashi mumkin.
-
-List Comprehension: [b for b in baholar if b >= 90] kodi an'anaviy for siklini bir qatorga qisqartirib, tezkor filtr qilish imkonini beradi.
-
-Mediana algoritmi: Agar kiritilgan baholar soni toq bo'lsa, ro'yxatning qo'q o'rtasidagi sonni oladi. Agar juft bo'lsa, o'rtadagi ikkita sonning o'rtacha arifmetigini hisoblab beradi.
+Ma'lumotlar migratsiyasi: pop() metodi orqali bajarilgan vazifa bir listdan o'chib, parallel ravishda ikkinchisiga ko'chadi, bu esa xotirani toza saqlashga xizmat qiladi.
