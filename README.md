@@ -1,92 +1,145 @@
 # python-asoslari
-Ochiq manbali (Open Source) loyihalarga hissa qo'shish — dasturchi sifatida o'sishning eng samarali usullaridan biri. Quyida siz keltirgan reja asosida jarayonni bosqichma-bosqich qanday amalga oshirish bo'yicha batafsil qo'llanma va yakuniy hisobot topshirish uchun shablon tayyorlab berdim.
+Mana, barcha talablarga toʻliq javob beradigan, modulli va xatoliklar boshqarilgan Python dasturi. Bu dasturda har bir amal alohida funksiyaga ajratilgan va sozlik.json fayli bilan ishlaydi.
 
-1-bosqich: Repozitoriyani qidirish va tanlash
-"Good first issue" yorlig'iga ega, 100 dan ortiq yulduzcha (star) yig'gan va faol loyihalarni topish uchun GitHub qidiruv tizimidan foydalanamiz.
+Python Dastur Kodi
+Python
+import json
+import os
 
-Tavsiya etilgan 3 ta repo turi (Tahlil):
-Kutubxonalar (Libraries): Masalan, mashhur dasturlash tillaridagi utilitlar. Ularda hujjatlar (documentation) juda ko'p bo'ladi.
+FAYL_NOMI = "sozlik.json"
 
-CLI vositalari (Command Line Tools): Kod strukturasi odatda tushunarli bo'ladi.
+# Boshlang'ich 20 ta so'z (agar fayl mavjud bo'lmasa ishlatiladi)
+BOSHLANGICH_SOZLAR = {
+    "apple": "olma", "banana": "banan", "cherry": "gilos", "date": "xurmo",
+    "elderberry": "marjon meva", "fig": "anjir", "grape": "uzum", "honeydew": "qovun",
+    "ice cream": "muzqaymoq", "juice": "sharbat", "kiwi": "kivi", "lemon": "limon",
+    "mango": "mango", "nectarine": "nektarin", "orange": "apelsin", "papaya": "papaya",
+    "quince": "behi", "raspberry": "morush", "strawberry": "qulupnay", "tangerine": "mandarin"
+}
 
-O'quv loyihalari (Awesome lists / Tutorials): Dastlabki tajriba uchun juda qulay.
+def yuklash():
+    """Fayldan lug'at ma'lumotlarini yuklash funksiyasi"""
+    try:
+        if os.path.exists(FAYL_NOMI):
+            with open(FAYL_NOMI, "r", encoding="utf-8") as fayl:
+                return json.load(fayl)
+        else:
+            # Fayl bo'lmasa, boshlang'ich 20 ta so'z bilan yangi lug'at yaratiladi
+            saqlash(BOSHLANGICH_SOZLAR)
+            return BOSHLANGICH_SOZLAR
+    except (json.JSONDecodeError, IOError) as e:
+        print(f"⚠️ Faylni yuklashda xatolik yuz berdi: {e}")
+        return {}
 
-Qidiruv filtri (GitHub qidiruv satriga yozish uchun):
-is:issue is:open label:"good first issue" stars:>100
+def saqlash(lugat):
+    """Lug'at ma'lumotlarini faylga saqlash funksiyasi"""
+    try:
+        with open(FAYL_NOMI, "w", encoding="utf-8") as fayl:
+            json.dump(lugat, fayl, ensure_ascii=False, indent=4)
+    except IOError as e:
+        print(f"⚠️ Ma'lumotlarni saqlashda xatolik yuz berdi: {e}")
 
-2-bosqich: Texnik jarayon (Git va GitHub)
-Loyiha tanlangandan so'ng, quyidagi buyruqlar ketma-ketligi orqali ishni boshlaymiz. O'zgarish kiritishdan oldin CONTRIBUTING.md faylini albatta o'qib chiqing!
+def qoshish(lugat):
+    """Yangi so'z qo'shish funksiyasi"""
+    inglizcha = input("Inglizcha so'zni kiriting: ").strip().lower()
+    if not inglizcha:
+        print("❌ So'z bo'sh bo'lishi mumkin emas!")
+        return
+    
+    if inglizcha in lugat:
+        print(f"⚠️ '{inglizcha}' so'zi lug'atda allaqachon bor ({lugat[inglizcha]}).")
+        yangilash = input("Uni yangilashni xohlaysizmi? (ha/yo'q): ").strip().lower()
+        if yangilash != 'ha':
+            return
 
-1. Fork va Clone qilish
-Loyiha sahifasida "Fork" tugmasini bosing yoki GitHub CLI orqali bajaring:
+    ozbekcha = input("O'zbekcha tarjimasini kiriting: ").strip().lower()
+    if ozbekcha:
+        lugat[inglizcha] = ozbekcha
+        saqlash(lugat)
+        print("✅ So'z muvaffaqiyatli saqlandi!")
+    else:
+        print("❌ Tarjima bo'sh bo'lishi mumkin emas!")
 
-Bash
-gh repo fork <original-repo-url> --clone
-2. Upstream bog'lash (Sinxronizatsiya uchun)
-Loyiha papkasiga kirib, asl repozitoriyani upstream sifatida qo'shing:
+def qidirish(lugat):
+    """Kalit (inglizcha) yoki qiymat (o'zbekcha) bo'yicha qidirish funksiyasi"""
+    soz = input("Qidirilayotgan so'zni kiriting (inglizcha yoki o'zbekcha): ").strip().lower()
+    topildi = False
 
-Bash
-git remote add upstream <original-repo-url>
-# Tekshirish uchun:
-git remote -v
-3. Yangi Branch ochish
-Asosiy (main yoki master) branchda kod yozmang. Doim yangi branch oching:
+    # Kalit bo'yicha qidirish (Inglizcha)
+    if soz in lugat:
+        print(f"🔍 Topildi (Inglizcha): {soz} -> {lugat[soz]}")
+        topildi = True
 
-Bash
-# Hujjatlardagi xatolik (typo) uchun:
-git checkout -b docs/fix-typo-in-readme
+    # Qiymat bo'yicha qidirish (O'zbekcha)
+    for kalit, qiymat in lugat.items():
+        if qiymat == soz:
+            print(f"🔍 Topildi (O'zbekcha): {qiymat} -> {kalit}")
+            topildi = True
 
-# Kichik kod tuzatish uchun:
-git checkout -b fix/resolve-null-pointer
-4. Kodni o'zgartirish va Commit (Conventional Commits)
-O'zgarishlarni kiritgach, tushunarli commit xabari yozing:
+    if not topildi:
+        print("❌ Afsuski, bunday so'z lug'atdan topilmadi.")
 
-Bash
-git add .
-git commit -m "docs(readme): fix typo in installation guide"
-Format: <type>(<scope>): <short description>
+def ochirish(lugat):
+    """Lug'atdan so'z o'chirish funksiyasi"""
+    inglizcha = input("O'chiriladigan inglizcha so'zni kiriting: ").strip().lower()
+    if inglizcha in lugat:
+        del lugat[inglizcha]
+        saqlash(lugat)
+        print(f"🗑️ '{inglizcha}' so'zi lug'atdan o'chirildi.")
+    else:
+        print("❌ Bunday so'z lug'atda mavjud emas.")
 
-5. Push va Pull Request (PR)
-O'zgarishni o'zingizning fork qilingan repongizga yuklang:
+def statistika(lugat):
+    """Bonus: Lug'at statistikasini ko'rsatish funksiyasi"""
+    jami_sozlar = len(lugat)
+    print("\n--- 📊 LUG'AT STATISTIKASI ---")
+    print(f"Jami saqlangan so'zlar soni: {jami_sozlar} ta")
+    if jami_sozlar > 0:
+        # Eng uzun inglizcha so'zni topish uchun namuna statistika
+        eng_uzun = max(lugat.keys(), key=len)
+        print(f"Eng uzun inglizcha so'z: '{eng_uzun}' ({len(eng_uzun)} ta harf)")
+    print("------------------------------")
 
-Bash
-git push origin docs/fix-typo-in-readme
-GitHub sahifangizga kiring va "Compare & pull request" tugmasini bosing.
+def menu():
+    """Ilova boshqaruv menyusi (Menu Pattern)"""
+    lugat = yuklash()
+    
+    while True:
+        print("\n=== LUG'AT ILOVASI EN-UZ ===")
+        print("1. So'z qidirish")
+        print("2. Yangi so'z qo'shish")
+        print("3. So'zni o'chirish")
+        print("4. Statistika ko'rish")
+        print("5. Chiqish")
+        
+        tanlov = input("Amalni tanlang (1-5): ").strip()
+        
+        if tanlov == "1":
+            qidirish(lugat)
+        elif tanlov == "2":
+            qoshish(lugat)
+        elif tanlov == "3":
+            ochirish(lugat)
+        elif tanlov == "4":
+            statistika(lugat)
+        elif tanlov == "5":
+            print("👋 Dastur tugatildi. Xayr!")
+            break
+        else:
+            print("❌ Noto'g'ri buyruq! Iltimos, 1 dan 5 gacha bo'lgan raqamlardan birini kiriting.")
 
-PR sarlavhasi va tavsifi:
+# Dasturni ishga tushirish
+if __name__ == "__main__":
+    menu()
+Kodning oʻziga xos imkoniyatlari va talablar ijrosi:
+Modullik: yuklash, saqlash, qoshish, qidirish, ochirish va statistika amallari toʻliq alohida funksiyalarga ajratilgan.
 
-Title: docs(readme): fix typo in installation guide
+JSON bilan ishlash: Ma'lumotlar sozlik.json faylida chiroyli formatda (indent=4) saqlanadi va yuklanadi.
 
-Description: This PR fixes a small typo in the installation section of the README.md.
+Avtomatik yuklash va Boshlangʻich baza: Dastur ilk bor ishga tushganda fayl bo'lmasa, kod ichidagi 20 ta meva nomlaridan iborat tayyor lug'atni avtomatik ravishda faylga yozib oladi.
 
-Closes: Closes #123 (Agar muayyan issue'ga tegishli bo'lsa)
+Ikki tomonlama qidiruv: Qidiruv tizimi ham inglizcha kalit so'zni, ham o'zbekcha tarjimani birdek qidira oladi.
 
-3-bosqich: PR'dan keyingi jarayon
-Feedback (Fikr-mulohaza): Maintainer loyihaga qarab kodni o'zgartirishni so'rashi mumkin. Sabr bilan, muloyimlik bilan javob bering va so'ralgan tuzatishlarni o'sha branchning o'zida qilib, qayta push qiling.
+Xatoliklar nazorati (try/except): Fayl o'qish yoki yozishda yuzaga kelishi mumkin bo'lgan har qanday kutilmagan tizim xatolari dasturni to'xtatib qo'ymaydi, balki ogohlantirish beradi.
 
-Merge bo'lgandan keyin (Tozalash):
-
-Bash
-git checkout main
-git fetch upstream
-git merge upstream/main
-git push origin main
-git branch -d docs/fix-typo-in-readme
-Agar rad etilsa (Reject): Xafa bo'lish yo'q! Bu normal holat. Sababini tushunishga harakat qiling va boshqa loyihada qaytadan urinib ko'ring.
-
-4-bosqich: Hisobot (Shablon)
-Vazifani topshirish yoki o'zingiz uchun qayd etib borish uchun quyidagi tayyor shablondan foydalanishingiz mumkin:
-
-Open Source Contribution Hisoboti
-Tanlangan loyiha (Repo URL): https://github.com/owner/repository_name
-
-Yuborilgan PR (PR URL): https://github.com/owner/repository_name/pull/X
-
-Jarayon haqida qisqacha hisobot (O'z-o'zini baholash):
-Mezon	Berilgan ball	Izoh / Sabab
-1. Repo tanlash va tahlil	20 / 20	100+ star bo'lgan, faol va good first issue tegiga ega loyiha to'g'ri tanlandi.
-2. Qoidalarga rioya qilish	20 / 20	CONTRIBUTING.md to'liq o'qildi, loyiha formatlash qoidalariga rioya qilindi.
-3. Git va Branch boshqaruvi	20 / 20	Fork qilindi, upstream ulandi, nomlanish qoidasiga mos alohida branch ochildi.
-4. Commit va PR sifati	20 / 20	Conventional Commits ishlatildi. PR tavsifi aniq yozilib, tegishli Issue'ga bog'landi (Closes #N).
-5. Kommunikatsiya va Yakun	20 / 20	Maintainer feedback'iga to'g'ri javob berildi / branchlar o'z vaqtida tozalandi.
-YAKUNIY NATIJA	100 / 100	Jarayon muvaffaqiyatli yakunlandi!
+Statistika (Bonus): Lug'atdagi jami so'zlar soni va eng uzun so'z kabi foydali ma'lumotlarni chiqaradi.
