@@ -1,46 +1,107 @@
 # python-asoslari
-    Mana, berilgan barcha talablarga javob beradigan, kiritilgan matnni tahlil qilib beruvchi mukammal Python dasturi:
+Mana, berilgan barcha talablarga to'liq javob beradigan, xatoliklarni oldindan aniqlaydigan va hisob-kitoblarni 2 xonagacha yaxlitlab ko'rsatadigan konsol kalkulyatori:
 
 Python
-# Foydalanuvchidan matn qabul qilish
-matn = input("Iltimos, tahlil qilish uchun matn kiriting: ")
+# Foydalanuvchiga mavjud amallar ro'yxatini ko'rsatish
+print("=" * 50)
+print("           MUKAMMAL KONSOL KALKULYATORI           ")
+print("=" * 50)
+print("Mavjud amallar:")
+print(" +  -> Qo'shish          |  -  -> Ayirish")
+print(" * -> Ko'paytirish      |  /  -> Bo'lish (O'nli)")
+print(" // -> Butunli bo'lish   |  %  -> Qoldikli bo'lish")
+print(" ** -> Darajaga ko'tarish |  v  -> Kvadrat ildiz (Faqat 1-son)")
+print(" f  -> Foiz hisoblash (1-sonning 2-son foizi)")
+print("=" * 50)
 
-# Bo'sh matn holatini tekshirish
-# .strip() metodi matn boshidagi va oxiridagi ortiqcha bo'shliqlarni olib tashlaydi
-if not matn.strip():
-    print("\n[Xatolik]: Siz hech qanday matn kiritmadingiz yoki faqat bo'shliqlar kiritdingiz!")
+# 1. Kiritilgan ma'lumotlarni tekshirish va casting qilish
+son1_input = input("Birinchi sonni kiriting: ")
+
+# Kiritilgan qiymat haqiqatan ham son ekanligini tekshirish
+# (Nuqta va minus belgilarini hisobga olgan holda)
+if not son1_input.replace('.', '', 1).replace('-', '', 1).isdigit():
+    print("\n[XATOLIK]: Birinchi qiymat o'rniga son kiritmadingiz!")
 else:
-    # 1. Matn uzunligi va so'zlar sonini aniqlash
-    # .split() metodi matnni bo'shliqlar bo'yicha bo'laklarga (so'zlarga) ajratadi va ro'yxat qaytaradi
-    sozlar_royxati = matn.split()
-    matn_uzunligi = len(matn)
-    sozlar_soni = len(sozlar_royxati)
+    son1 = float(son1_input)
+    amal = input("Amalni kiriting (+, -, *, /, //, %, **, v, f): ").strip()
 
-    # 2. String metodlarini qo'llash
-    katta_harf = matn.upper()                         # 1-metod: Hamma harflarni katta qiladi
-    kichik_harf = matn.lower()                       # 2-metod: Hamma harflarni kichik qiladi
-    tozalangan_matn = matn.strip()                   # 3-metod: Chetki bo'shliqlarni tozalaydi
-    almashtirilgan = matn.replace(" ", "_")          # 4-metod: Bo'shliqlarni pastki chiziqqa almashtiradi
-    # .split() yuqorida ishlatildi va bu 5-metod hisoblanadi
+    # Kvadrat ildiz amali faqat bitta son bilan ishlagani uchun uni alohida tekshiramiz
+    if amal == 'v':
+        if son1 < 0:
+            print("\n[XATOLIK]: Manfiy sonning kvadrat ildizini hisoblab bo'lmaydi!")
+        else:
+            natija = son1 ** 0.5
+            print("-" * 50)
+            print(f"Natija: √{son1} = {natija:.2f}")
+            print("-" * 50)
+            
+    # Boshqa barcha amallar uchun ikkinchi sonni ham so'raymiz
+    elif amal in ['+', '-', '*', '/', '//', '%', '**', 'f']:
+        son2_input = input("Ikkinchi sonni kiriting: ")
+        
+        if not son2_input.replace('.', '', 1).replace('-', '', 1).isdigit():
+            print("\n[XATOLIK]: Ikkinchi qiymat o'rniga son kiritmadingiz!")
+        else:
+            son2 = float(son2_input)
+            print("-" * 50)
 
-    # 3. Slicing (Kesib olish) orqali matnning bir qismini chiqarish
-    # Matnning dastlabki 10 ta belgisini kesib olamiz
-    birinchi_10_belgi = matn[:10]
+            # 2. Amallarni bajarish va 0 ga bo'lishni tekshirish
+            if amal == '+':
+                natija = son1 + son2
+                print(f"Natija: {son1} + {son2} = {natija:.2f}")
+                
+            elif amal == '-':
+                natija = son1 - son2
+                print(f"Natija: {son1} - {son2} = {natija:.2f}")
+                
+            elif amal == '*':
+                natija = son1 * son2
+                print(f"Natija: {son1} * {son2} = {natija:.2f}")
+                
+            elif amal == '/':
+                if son2 == 0:
+                    print("[XATOLIK]: Sonni 0 ga bo'lish mumkin emas!")
+                else:
+                    natija = son1 / son2
+                    print(f"Natija: {son1} / {son2} = {natija:.2f}")
+                    
+            elif amal == '//':
+                if son2 == 0:
+                    print("[XATOLIK]: 0 ga butunli bo'lish mumkin emas!")
+                else:
+                    natija = son1 // son2
+                    print(f"Natija: {son1} // {son2} = {natija:.2f}")
+                    
+            elif amal == '%':
+                if son2 == 0:
+                    print("[XATOLIK]: 0 ga bo'lgandagi qoldiqni hisoblab bo'lmaydi!")
+                else:
+                    natija = son1 % son2
+                    print(f"Natija: {son1} % {son2} = {natija:.2f}")
+                    
+            elif amal == '**':
+                natija = son1 ** son2
+                print(f"Natija: {son1} ^ {son2} = {natija:.2f}")
+                
+            elif amal == 'f':
+                # a dan b foizni topish formulasi: (a * b) / 100
+                natija = (son1 * son2) / 100
+                print(f"Natija: {son1} sonining {son2}% foizi = {natija:.2f}")
+            
+            print("-" * 50)
+    else:
+        print("\n[XATOLIK]: Noto'g'ri amal kiritdingiz!")
+💡 Kodning muhim qismlari tushuntirishi:
+Xavfsiz kiritish: isdigit() tekshiruvi orqali foydalanuvchi tasodifan harf yoki belgi kiritib yuborsa, dastur xatolik bilan o'chib qolmaydi, balki tushunarli ogohlantirish beradi.
 
-    # 4. Natijalarni f-string yordamida chiroyli ko'rinishda chiqarish
-    print("\n" + "="*20 + " MATN TAHLILI " + "="*20)
-    print(f"📝 Kiritilgan matn: '{tozalangan_matn}'")
-    print(f"📊 Belgilar soni (uzunligi): {matn_uzunligi} ta")
-    print(f"🔤 So'zlar soni: {sozlar_soni} ta")
-    print("-" * 54)
-    print(f"🔺 Katta harflarda: {katta_harf}")
-    print(f"🔻 Kichik harflarda: {kichik_harf}")
-    print(f"🔗 Bo'shliqlar almashtirilganda: {almashtirilgan}")
-    print(f"✂️ Slicing (Dastlabki 10 ta belgi): '{birinchi_10_belgi}'")
-    print("=" * 54)
-💡 Dastur qanday ishlaydi va metodlar tushuntirishi:
-strip(): Agar foydalanuvchi adashib matn boshiga yoki oxiriga ko'p bo'shliq qo'yib yuborsa, ularni o'chirib, toza matn bilan ishlashga yordam beradi.
+0 ga bo'lish himoyasi: /, //, va % amallarining barchasida if son2 == 0: sharti orqali dasturning ZeroDivisionError berishini oldi olindi.
 
-split(): Matn ichidagi so'zlarni bir-biridan ajratib oladi va len() funksiyasi orqali matnda jami nechta so'z borligini aniqlashga xizmat qiladi.
+Kvadrat ildiz (math'siz): Matematika qoidasiga ko'ra sonning 0.5 darajasi uning kvadrat ildiziga teng ( 
+x
 
-[:10]: Agar kiritilgan matn uzun bo'lsa, indekslash qoidasiga ko'ra 0-indeksdan to 10-indeksgaacha bo'lgan qismini qirqib ko'rsatadi.
+​
+ =x 
+0.5
+ ), dasturda aynan shu mantiq ishlatildi.
+
+Formatlash (:.2f): Har qanday uzun kasr son chiqadigan natija f-string ichida nuqtadan keyin 2 ta raqamgacha yaxlitlab ko'rsatiladi.
